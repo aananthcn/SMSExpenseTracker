@@ -25,12 +25,16 @@ public class ExpCatViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_exp_cat_view);
+        setContentView(R.layout.exp_cat_activity_view);
 
         // test code
         SmsExpCategory cat1 = new SmsExpCategory("Grocery", 1);
         SmsExpCategory cat2 = new SmsExpCategory("Fuel", 2);
         expCategoryList = new ArrayList<>();
+        expCategoryList.add(cat1);
+        expCategoryList.add(cat2);
+        expCategoryList.add(cat1);
+        expCategoryList.add(cat2);
         expCategoryList.add(cat1);
         expCategoryList.add(cat2);
         renderExpCatRecycleView();
