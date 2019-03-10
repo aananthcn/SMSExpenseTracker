@@ -79,7 +79,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
             public void onLongClick(View view, int position) {
                 // edit treatment
                 expCategory = mExpCategoryList.get(position);
-                // EditTreatmentRecord();
+
                 Intent intent = new Intent(ExpCatViewActivity.this, AddModExpCatActivity.class);
                 Log.d(TAG, "Switching to View Categories");
                 intent.putExtra(EXTRA_MESSAGE, "modify");
@@ -89,6 +89,14 @@ public class ExpCatViewActivity extends AppCompatActivity {
                 mRcVwUpdateNeeded = true;
             }
         }));
+    }
+
+    public void AddExpenseCategory(View view) {
+        Intent intent = new Intent(ExpCatViewActivity.this, AddModExpCatActivity.class);
+        intent.putExtra(EXTRA_MESSAGE, "new");
+        intent.putExtra("expcat", expCategory);
+        startActivity(intent);
+        mRcVwUpdateNeeded = true;
     }
 
     /*@Override

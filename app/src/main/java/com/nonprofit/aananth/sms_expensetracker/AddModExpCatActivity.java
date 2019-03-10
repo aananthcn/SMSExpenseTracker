@@ -27,8 +27,10 @@ public class AddModExpCatActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mExpCat = (ExpCategory) intent.getSerializableExtra("expcat");
         String message = intent.getStringExtra(EXTRA_MESSAGE);
-        if (message.equals("new"))
+        if (message.equals("new")) {
             mIsNew = true;
+            mExpCat = new ExpCategory("");
+        }
         else
             mIsNew = false;
 
@@ -48,7 +50,9 @@ public class AddModExpCatActivity extends AppCompatActivity {
             }
         });
         EditText expCatTxt = (EditText) findViewById(R.id.expcat_text);
-        expCatTxt.setText(mExpCat.expCatName);
+        if (!mIsNew) {
+            expCatTxt.setText(mExpCat.expCatName);
+        }
         expCatTxt.setOnKeyListener(new View.OnKeyListener()
         {
             public boolean onKey(View v, int keyCode, KeyEvent event)
