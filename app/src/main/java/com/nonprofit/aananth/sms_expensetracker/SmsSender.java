@@ -1,6 +1,8 @@
 package com.nonprofit.aananth.sms_expensetracker;
 
-public class SmsSender {
+import java.io.Serializable;
+
+public class SmsSender implements Serializable {
     long id;
     String name;
 

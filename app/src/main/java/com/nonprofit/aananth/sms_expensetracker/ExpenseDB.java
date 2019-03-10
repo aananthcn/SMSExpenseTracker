@@ -9,7 +9,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 
 /**
@@ -74,12 +73,12 @@ public class ExpenseDB extends SQLiteOpenHelper{
         db.execSQL(query);
     }
 
-    public void AddCategory2ExpCatTable(SmsExpCategory category) {
+    public void AddExpenseCategory(ExpCategory expCat) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String uid = (category.expCatName + "_" + new Date()).replaceAll("[^a-zA-Z0-9]+", "_");
+        String uid = (expCat.expCatName + "_" + new Date()).replaceAll("[^a-zA-Z0-9]+", "_");
         String query = "INSERT INTO " + EXP_CAT_TABLE + " (name, uid) VALUES ('"+
-                category.expCatName + "', '" + uid + "')";
+                expCat.expCatName + "', '" + uid + "')";
 
         Log.d(TAG, query);
         db.execSQL(query);
@@ -88,8 +87,37 @@ public class ExpenseDB extends SQLiteOpenHelper{
         db.close();
     }
 
+    public void UpdateExpenseCategory(ExpCategory expCategory) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "UPDATE " + EXP_CAT_TABLE + " SET name = '" + expCategory.expCatName +
+                "' WHERE uid = '" + expCategory.uid + "';";
+
+        Log.d(TAG, query);
+        db.execSQL(query);
+        mDbChanged = true;
+        db.close();
+    }
+
+
+    public void DeleteExpCategory(ExpCategory expCategory) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query;
+
+        // delete category - SMS senders list table
+        query = "DROP TABLE IF EXISTS '" + expCategory.uid + "'";
+        Log.d(TAG, query);
+        db.execSQL(query);
+
+        // delete the patient
+        query = "DELETE FROM " + EXP_CAT_TABLE + " WHERE uid = '" + expCategory.uid + "';";
+        Log.d(TAG, query);
+        db.execSQL(query);
+        mDbChanged = true;
+        db.close();
+    }
+
     // This function returns the senderTable name by browsing the EXP_CAT_TABLE
-    public String GetSenderTableName(SQLiteDatabase db, SmsExpCategory cat) {
+    public String GetSenderTableName(SQLiteDatabase db, ExpCategory cat) {
         String tableName = null;
         String query = "SELECT * FROM " + EXP_CAT_TABLE + " ORDER BY " + PKEY + cat.expCatName;
         Log.d(TAG, query);
@@ -112,13 +140,12 @@ public class ExpenseDB extends SQLiteOpenHelper{
         return tableName;
     }
 
-    public List<SmsExpCategory> GetExpCategoryList() {
+    public List<ExpCategory> GetExpCategoryList() {
         SQLiteDatabase db = this.getWritableDatabase();
-        List<SmsExpCategory> expCatList = new ArrayList<>();
-        String query, name;
-        int id;
+        List<ExpCategory> expCatList = new ArrayList<>();
+        String query, name, uid;
         Cursor res;
-        SmsExpCategory category;
+        ExpCategory category;
 
         query = "SELECT * FROM " + EXP_CAT_TABLE + " ORDER BY " + PKEY;
         Log.d(TAG, query);
@@ -126,17 +153,17 @@ public class ExpenseDB extends SQLiteOpenHelper{
         res.moveToFirst();
 
         if (res.getCount() <= 0) {
-            category = new SmsExpCategory("Empty", 0);
+            category = new ExpCategory("Empty", "Invalid");
             expCatList.add(category);
             res.close();
             return expCatList;
         }
 
-        Log.d(TAG, "Number of doctors = "+res.getCount());
+        Log.d(TAG, "Number of Expense Categories = "+res.getCount());
         while(!res.isAfterLast()){
             name = res.getString(res.getColumnIndex("name"));
-            id = res.getInt(res.getColumnIndex(PKEY));
-            category = new SmsExpCategory(name, id);
+            uid = res.getString(res.getColumnIndex("uid"));
+            category = new ExpCategory(name, uid);
             expCatList.add(category);
 
             res.moveToNext();
@@ -162,7 +189,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
         db.execSQL(query);
     }
 
-    public void AddSmsSender(SmsSender sender, SmsExpCategory category) {
+    public void AddSmsSender(SmsSender sender, ExpCategory category) {
         String tablename;
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -177,7 +204,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
         db.close();
     }
 
-    public void UpdateSmsSender(SmsSender smsSender, SmsExpCategory category) {
+    public void UpdateSmsSender(SmsSender smsSender, ExpCategory category) {
         SQLiteDatabase db = this.getWritableDatabase();
         String tablename = GetSenderTableName(db, category);
 
@@ -190,7 +217,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
         db.close();
     }
 
-    public void DeleteSmsSender(SmsSender smsSender, SmsExpCategory category) {
+    public void DeleteSmsSender(SmsSender smsSender, ExpCategory category) {
         SQLiteDatabase db = this.getWritableDatabase();
         String tablename = GetSenderTableName(db, category);
 
@@ -202,7 +229,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
         db.close();
     }
 
-    public List<SmsSender> GetSenderListInCategory(SmsExpCategory category) {
+    public List<SmsSender> GetSenderListInCategory(ExpCategory category) {
         SQLiteDatabase db = this.getWritableDatabase();
         List<SmsSender> senderList = new ArrayList<>();
         String query, name;

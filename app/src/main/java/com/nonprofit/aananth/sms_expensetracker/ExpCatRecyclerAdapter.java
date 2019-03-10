@@ -9,7 +9,7 @@ import android.widget.TextView;
 import java.util.List;
 
 public class ExpCatRecyclerAdapter extends RecyclerView.Adapter<ExpCatRecyclerAdapter.ViewHolder> {
-    private List<SmsExpCategory> categories;
+    private List<ExpCategory> categories;
 
     // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
     protected static class ViewHolder extends RecyclerView.ViewHolder {
@@ -22,7 +22,7 @@ public class ExpCatRecyclerAdapter extends RecyclerView.Adapter<ExpCatRecyclerAd
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ExpCatRecyclerAdapter(List<SmsExpCategory> categoryList) {
+    public ExpCatRecyclerAdapter(List<ExpCategory> categoryList) {
         this.categories = categoryList;
     }
 
@@ -49,7 +49,7 @@ public class ExpCatRecyclerAdapter extends RecyclerView.Adapter<ExpCatRecyclerAd
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
-        SmsExpCategory expCategory = categories.get(position);
+        ExpCategory expCategory = categories.get(position);
         holder.exp_category.setText(expCategory.expCatName);
     }
 
