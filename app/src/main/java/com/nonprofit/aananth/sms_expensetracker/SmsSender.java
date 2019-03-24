@@ -6,6 +6,11 @@ public class SmsSender implements Serializable {
     long id;
     String name;
 
+    public SmsSender(String sname) {
+        name = sname;
+        id = -1;
+    }
+
     public SmsSender(String sname, int sid) {
         id = sid;
         name = sname;

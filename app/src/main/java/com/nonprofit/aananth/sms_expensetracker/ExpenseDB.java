@@ -119,7 +119,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
     // This function returns the senderTable name by browsing the EXP_CAT_TABLE
     public String GetSenderTableName(SQLiteDatabase db, ExpCategory cat) {
         String tableName = null;
-        String query = "SELECT * FROM " + EXP_CAT_TABLE + " ORDER BY " + PKEY + cat.expCatName;
+        String query = "SELECT * FROM " + EXP_CAT_TABLE + " ORDER BY " + PKEY;
         Log.d(TAG, query);
         Cursor res = db.rawQuery(query, null);
         res.moveToFirst();

@@ -22,7 +22,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
     private boolean mRcVwUpdateNeeded;
 
     private List<ExpCategory> mExpCategoryList;
-    private ExpCategory expCategory;
+    private ExpCategory mExpCategory;
 
     public static final int ADD_MODIFY_CAT = 101;
 
@@ -30,6 +30,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.exp_cat_activity_view);
+        setTitle("Expense Categories");
 
         // main code
         renderExpCatRecycleView();
@@ -67,23 +68,23 @@ public class ExpCatViewActivity extends AppCompatActivity {
             @Override
             public void onClick(View view, final int position) {
                 Log.d(TAG, "onClick()");
-                // share treatment
-                expCategory = mExpCategoryList.get(position);
-                registerForContextMenu(view);
-                openContextMenu(view);
-                view.showContextMenu();
-                unregisterForContextMenu(view);
+                mExpCategory = mExpCategoryList.get(position);
+
+                Intent intent = new Intent(ExpCatViewActivity.this, SmsSendersViewActivity.class);
+                Log.d(TAG, "Switching to View SMS Senders view");
+                intent.putExtra("expcat", mExpCategory);
+                startActivity(intent);
             }
 
             @Override
             public void onLongClick(View view, int position) {
                 // edit treatment
-                expCategory = mExpCategoryList.get(position);
+                mExpCategory = mExpCategoryList.get(position);
 
-                Intent intent = new Intent(ExpCatViewActivity.this, AddModExpCatActivity.class);
+                Intent intent = new Intent(ExpCatViewActivity.this, ExpCatAddModActivity.class);
                 Log.d(TAG, "Switching to View Categories");
                 intent.putExtra(EXTRA_MESSAGE, "modify");
-                intent.putExtra("expcat", expCategory);
+                intent.putExtra("expcat", mExpCategory);
                 //startActivityForResult(intent, ADD_MODIFY_CAT);
                 startActivity(intent);
                 mRcVwUpdateNeeded = true;
@@ -92,9 +93,9 @@ public class ExpCatViewActivity extends AppCompatActivity {
     }
 
     public void AddExpenseCategory(View view) {
-        Intent intent = new Intent(ExpCatViewActivity.this, AddModExpCatActivity.class);
+        Intent intent = new Intent(ExpCatViewActivity.this, ExpCatAddModActivity.class);
         intent.putExtra(EXTRA_MESSAGE, "new");
-        intent.putExtra("expcat", expCategory);
+        intent.putExtra("expcat", mExpCategory);
         startActivity(intent);
         mRcVwUpdateNeeded = true;
     }

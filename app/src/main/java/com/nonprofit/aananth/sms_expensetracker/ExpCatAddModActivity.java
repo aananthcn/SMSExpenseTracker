@@ -1,6 +1,5 @@
 package com.nonprofit.aananth.sms_expensetracker;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,8 +11,8 @@ import android.widget.EditText;
 
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
-public class AddModExpCatActivity extends AppCompatActivity {
-    private static final String TAG = AddModExpCatActivity.class.getSimpleName();
+public class ExpCatAddModActivity extends AppCompatActivity {
+    private static final String TAG = ExpCatAddModActivity.class.getSimpleName();
 
     private ExpCategory mExpCat;
     private boolean mIsNew;
@@ -21,18 +20,21 @@ public class AddModExpCatActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_mod_exp_cat);
+        setContentView(R.layout.exp_cat_add_mod_activity);
 
         // get all arguments from the caller
         Intent intent = getIntent();
-        mExpCat = (ExpCategory) intent.getSerializableExtra("expcat");
         String message = intent.getStringExtra(EXTRA_MESSAGE);
         if (message.equals("new")) {
+            setTitle("Add Expense Category");
             mIsNew = true;
             mExpCat = new ExpCategory("");
         }
-        else
+        else {
+            setTitle("Edit Expense Category");
             mIsNew = false;
+            mExpCat = (ExpCategory) intent.getSerializableExtra("expcat");
+        }
 
         //set up button handlers
         Button saveBtn = (Button) findViewById(R.id.expcat_save_btn);
