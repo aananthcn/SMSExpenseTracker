@@ -26,6 +26,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
     // sender tables, which contains list of senders that should be classified
     // under each category.
     public static final String EXP_CAT_TABLE = "expCatTable";
+    public static final String SMS_SENDER_LIST = "smsSenderList";
 
 
     private boolean mDbChanged = false;
@@ -64,6 +65,10 @@ public class ExpenseDB extends SQLiteOpenHelper{
         */
     }
 
+    private String getUniqueID(String inStr) {
+        return  (inStr + "_" + new Date()).replaceAll("[^a-zA-Z0-9]+", "_");
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Category Table Functions
 
@@ -76,7 +81,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
     public void AddExpenseCategory(ExpCategory expCat) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        String uid = (expCat.expCatName + "_" + new Date()).replaceAll("[^a-zA-Z0-9]+", "_");
+        String uid = getUniqueID(expCat.expCatName);
         String query = "INSERT INTO " + EXP_CAT_TABLE + " (name, uid) VALUES ('"+
                 expCat.expCatName + "', '" + uid + "')";
 
@@ -114,36 +119,6 @@ public class ExpenseDB extends SQLiteOpenHelper{
         db.execSQL(query);
         mDbChanged = true;
         db.close();
-    }
-
-    // This function returns the senderTable name by browsing the EXP_CAT_TABLE
-    public String GetSenderTableName(SQLiteDatabase db, ExpCategory cat) {
-        String tableName = null;
-        String query = "SELECT * FROM " + EXP_CAT_TABLE + " ORDER BY " + PKEY;
-        Log.d(TAG, query);
-        Cursor res = db.rawQuery(query, null);
-        res.moveToFirst();
-
-        if (res.getCount() <= 0) {
-            res.close();
-            return null;
-        }
-
-        Log.d(TAG, "Number of entries found = "+res.getCount());
-        // search for the matching expense category passed as argument
-        while (!res.isAfterLast()){
-            // category name and arg.name has the same name
-            if (cat.expCatName.equals(res.getString(res.getColumnIndex("name")))) {
-                tableName = res.getString(res.getColumnIndex("uid"));
-                break;
-            }
-
-            res.moveToNext();
-        }
-
-        res.close();
-
-        return tableName;
     }
 
     public List<ExpCategory> GetExpCategoryList() {
@@ -185,13 +160,9 @@ public class ExpenseDB extends SQLiteOpenHelper{
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Sender Table Functions
 
-    public void createSenderTableIfNotExists(SQLiteDatabase db, String tablename) {
-        String query;
-
-        query = "CREATE TABLE IF NOT EXISTS " + tablename + " ( " + PKEY + 
-                " INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(100) )";
-
-        Log.d(TAG, query);
+    private void createSenderTableIfNotExists(SQLiteDatabase db) {
+        String query = "CREATE TABLE IF NOT EXISTS " + SMS_SENDER_LIST + " ( " + PKEY +
+                " INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(100), cat_uid VARCHAR(100) )";
         db.execSQL(query);
     }
 
@@ -199,10 +170,10 @@ public class ExpenseDB extends SQLiteOpenHelper{
         String tablename;
         SQLiteDatabase db = this.getWritableDatabase();
 
-        tablename = GetSenderTableName(db, category);
-        createSenderTableIfNotExists(db, tablename);
+        createSenderTableIfNotExists(db);
 
-        String query = "INSERT INTO " + tablename + " (name) VALUES ('"+ sender.name + "')";
+        String query = "INSERT INTO " + SMS_SENDER_LIST + " (name, cat_uid) VALUES ('"+ sender.name
+                + "', '" + category.uid + "')";
 
         Log.d(TAG, query);
         db.execSQL(query);
@@ -212,10 +183,9 @@ public class ExpenseDB extends SQLiteOpenHelper{
 
     public void UpdateSmsSender(SmsSender smsSender, ExpCategory category) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String tablename = GetSenderTableName(db, category);
 
-        String query = "UPDATE " + tablename + " SET name = '" + smsSender.name +
-                "' WHERE " + PKEY + " = '" + smsSender.id + "';";
+        String query = "UPDATE " + SMS_SENDER_LIST + " SET name = '" + smsSender.name +
+                "', cat_uid = '" + category.uid + "' WHERE " + PKEY + " = '" + smsSender.id + "';";
 
         Log.d(TAG, query);
         db.execSQL(query);
@@ -225,9 +195,8 @@ public class ExpenseDB extends SQLiteOpenHelper{
 
     public void DeleteSmsSender(SmsSender smsSender, ExpCategory category) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String tablename = GetSenderTableName(db, category);
 
-        String query = "DELETE FROM " + tablename + " WHERE " + PKEY + " = '" + smsSender.id + "';";
+        String query = "DELETE FROM " + SMS_SENDER_LIST + " WHERE " + PKEY + " = '" + smsSender.id + "';";
 
         Log.d(TAG, query);
         db.execSQL(query);
@@ -235,17 +204,16 @@ public class ExpenseDB extends SQLiteOpenHelper{
         db.close();
     }
 
-    public List<SmsSender> GetSenderListInCategory(ExpCategory category) {
+    public List<SmsSender> GetSenderList() {
         SQLiteDatabase db = this.getWritableDatabase();
         List<SmsSender> senderList = new ArrayList<>();
         String query, name;
         int id;
         Cursor res;
         SmsSender sender;
-        String tablename = GetSenderTableName(db, category);
-        createSenderTableIfNotExists(db, tablename);
 
-        query = "SELECT * FROM " + tablename + " ORDER BY " + PKEY;
+        createSenderTableIfNotExists(db);
+        query = "SELECT * FROM " + SMS_SENDER_LIST + " ORDER BY " + PKEY;
         Log.d(TAG, query);
         res = db.rawQuery(query, null);
         res.moveToFirst();

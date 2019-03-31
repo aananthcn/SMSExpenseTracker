@@ -53,11 +53,10 @@ public class SmsSendersViewActivity extends AppCompatActivity {
 
     private List<SmsSender> getSmsSendersList() {
         ExpenseDB expDb = new ExpenseDB(this);
-        return expDb.GetSenderListInCategory(mExpCat);
+        return expDb.GetSenderList();
     }
 
     public void renderSmsSenderRecycleView() {
-        //update_mode(Mode.VIEW_TREAT);
         mRecyclerView = (RecyclerView) findViewById(R.id.exp_cat_recycler_view);
         if (mRecyclerView == null) {
             Log.d(TAG, "renderExpCatRecycleView: mRecylerView is null!!");
