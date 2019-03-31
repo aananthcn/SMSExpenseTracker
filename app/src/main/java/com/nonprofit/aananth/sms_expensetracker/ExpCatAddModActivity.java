@@ -48,7 +48,7 @@ public class ExpCatAddModActivity extends AppCompatActivity {
         deleBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteExpenceCategory();
+                deleteExpenseCategory();
             }
         });
         EditText expCatTxt = (EditText) findViewById(R.id.expcat_text);
@@ -98,7 +98,7 @@ public class ExpCatAddModActivity extends AppCompatActivity {
         myFinish("yes");
     }
 
-    private void deleteExpenceCategory() {
+    private void deleteExpenseCategory() {
         ExpenseDB expenseDB = new ExpenseDB(this);
         expenseDB.DeleteExpCategory(mExpCat);
         myFinish("yes");

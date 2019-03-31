@@ -119,12 +119,15 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.exp_categories) {
-            // Handle the camera action
             Intent intent = new Intent(this, ExpCatViewActivity.class);
-            Log.d(TAG, "Switching to View Categories");
+            Log.d(TAG, "Switching to View Expense Categories");
             startActivity(intent);
-        } else if (id == R.id.nav_gallery) {
-
+        } else if (id == R.id.sms_senders) {
+            Intent intent = new Intent(this, SmsSendersViewActivity.class);
+            Log.d(TAG, "Switching to View SMS Senders");
+            ExpCategory expCategory = new ExpCategory("*");
+            intent.putExtra("expcat", expCategory);
+            startActivity(intent);
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {

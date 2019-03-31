@@ -9,9 +9,9 @@
             android:icon="@drawable/ic_menu_manage"
             android:title="Expense Categories" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/sms_senders"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="SMS Senders" />
         <item
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"

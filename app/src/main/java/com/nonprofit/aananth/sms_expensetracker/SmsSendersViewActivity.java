@@ -86,7 +86,11 @@ public class SmsSendersViewActivity extends AppCompatActivity {
                 Log.d(TAG, "onLongClick()");
                 mSmsSender = mSmsSenderList.get(position);
                 // handle this event
-
+                Intent intent = new Intent(SmsSendersViewActivity.this, SmsSenderAddModActivity.class);
+                intent.putExtra("sender", mSmsSender);
+                intent.putExtra("expcat", mExpCat);
+                intent.putExtra(EXTRA_MESSAGE, "update");
+                startActivity(intent);
                 mRcVwUpdateNeeded = true;
             }
         }));
@@ -95,6 +99,7 @@ public class SmsSendersViewActivity extends AppCompatActivity {
     public void AddSmsSender(View view) {
         Intent intent = new Intent(SmsSendersViewActivity.this, SmsSenderAddModActivity.class);
         intent.putExtra("sender", mSmsSender);
+        intent.putExtra("expcat", mExpCat);
         intent.putExtra(EXTRA_MESSAGE, "new");
         startActivity(intent);
         mRcVwUpdateNeeded = true;

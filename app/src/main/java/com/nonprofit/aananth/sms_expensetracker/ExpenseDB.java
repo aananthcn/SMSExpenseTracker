@@ -130,9 +130,15 @@ public class ExpenseDB extends SQLiteOpenHelper{
         }
 
         Log.d(TAG, "Number of entries found = "+res.getCount());
-        // return the first item. It is expected that only one entry is present
-        if(!res.isAfterLast()){
-            tableName = res.getString(res.getColumnIndex("uid"));
+        // search for the matching expense category passed as argument
+        while (!res.isAfterLast()){
+            // category name and arg.name has the same name
+            if (cat.expCatName.equals(res.getString(res.getColumnIndex("name")))) {
+                tableName = res.getString(res.getColumnIndex("uid"));
+                break;
+            }
+
+            res.moveToNext();
         }
 
         res.close();
@@ -160,7 +166,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
         }
 
         Log.d(TAG, "Number of Expense Categories = "+res.getCount());
-        while(!res.isAfterLast()){
+        while (!res.isAfterLast()){
             name = res.getString(res.getColumnIndex("name"));
             uid = res.getString(res.getColumnIndex("uid"));
             category = new ExpCategory(name, uid);
@@ -251,7 +257,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
             return senderList;
         }
 
-        Log.d(TAG, "Number of doctors = "+res.getCount());
+        Log.d(TAG, "Number of senders = "+res.getCount());
         while(!res.isAfterLast()){
             name = res.getString(res.getColumnIndex("name"));
             id = res.getInt(res.getColumnIndex(PKEY));
