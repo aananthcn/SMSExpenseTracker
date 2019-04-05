@@ -34,7 +34,8 @@ public class SmsSendersViewActivity extends AppCompatActivity {
         // get all arguments from the caller
         Intent intent = getIntent();
         mExpCat = (ExpCategory) intent.getSerializableExtra("expcat");
-        setTitle("Senders of \"" + mExpCat.expCatName + "\"");
+        //setTitle("Senders of \"" + mExpCat.expCatName + "\"");
+        setTitle("SMS Senders");
 
         // main code
         renderSmsSenderRecycleView();
@@ -85,12 +86,12 @@ public class SmsSendersViewActivity extends AppCompatActivity {
                 Log.d(TAG, "onLongClick()");
                 mSmsSender = mSmsSenderList.get(position);
                 // handle this event
-                Intent intent = new Intent(SmsSendersViewActivity.this, SmsSenderAddModActivity.class);
+                Intent intent = new Intent(SmsSendersViewActivity.this, CategorizeSenderActivity.class);
                 intent.putExtra("sender", mSmsSender);
-                intent.putExtra("expcat", mExpCat);
-                intent.putExtra(EXTRA_MESSAGE, "update");
+                //intent.putExtra("expcat", mExpCat);
+                intent.putExtra(EXTRA_MESSAGE, "categorize");
                 startActivity(intent);
-                mRcVwUpdateNeeded = true;
+                //mRcVwUpdateNeeded = true;
             }
         }));
     }
