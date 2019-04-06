@@ -26,4 +26,16 @@
         android:text="Please select the category"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/select"
+        android:layout_width="220dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="161dp"
+        android:layout_marginTop="56dp"
+        android:layout_marginEnd="162dp"
+        android:text="Save Selection"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinner" />
 </android.support.constraint.ConstraintLayout>

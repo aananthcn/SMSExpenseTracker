@@ -9,21 +9,23 @@ import android.widget.TextView;
 import java.util.List;
 
 public class SmsSenderRecyclerAdapter extends RecyclerView.Adapter<SmsSenderRecyclerAdapter.ViewHolder> {
-    private List<SmsSender> smsSenderList;
+    private List<SmsSender> mSmsSenderList;
 
     // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
     protected static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView smsSender;
+        private TextView expCat;
 
         private ViewHolder(View view) {
             super(view);
             smsSender = (TextView) view.findViewById(R.id.sender_name);
+            expCat = (TextView) view.findViewById(R.id.exp_category);
         }
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
     public SmsSenderRecyclerAdapter(List<SmsSender> senders) {
-        this.smsSenderList = senders;
+        this.mSmsSenderList = senders;
     }
 
     // Create new views (invoked by the layout manager)
@@ -49,13 +51,14 @@ public class SmsSenderRecyclerAdapter extends RecyclerView.Adapter<SmsSenderRecy
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
-        SmsSender sender = smsSenderList.get(position);
+        SmsSender sender = mSmsSenderList.get(position);
         holder.smsSender.setText(sender.name);
+        holder.expCat.setText(sender.expCategory.expCatName);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return smsSenderList.size();
+        return mSmsSenderList.size();
     }
 }

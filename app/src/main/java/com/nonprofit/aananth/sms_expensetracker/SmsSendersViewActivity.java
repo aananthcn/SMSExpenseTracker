@@ -79,6 +79,12 @@ public class SmsSendersViewActivity extends AppCompatActivity {
                 Log.d(TAG, "onClick()");
                 mSmsSender = mSmsSenderList.get(position);
                 // handle this event
+                Intent intent = new Intent(SmsSendersViewActivity.this, CategorizeSenderActivity.class);
+                intent.putExtra("sender", mSmsSender);
+                //intent.putExtra("expcat", mExpCat);
+                intent.putExtra(EXTRA_MESSAGE, "categorize");
+                startActivity(intent);
+                mRcVwUpdateNeeded = true;
             }
 
             @Override
@@ -86,12 +92,6 @@ public class SmsSendersViewActivity extends AppCompatActivity {
                 Log.d(TAG, "onLongClick()");
                 mSmsSender = mSmsSenderList.get(position);
                 // handle this event
-                Intent intent = new Intent(SmsSendersViewActivity.this, CategorizeSenderActivity.class);
-                intent.putExtra("sender", mSmsSender);
-                //intent.putExtra("expcat", mExpCat);
-                intent.putExtra(EXTRA_MESSAGE, "categorize");
-                startActivity(intent);
-                //mRcVwUpdateNeeded = true;
             }
         }));
     }

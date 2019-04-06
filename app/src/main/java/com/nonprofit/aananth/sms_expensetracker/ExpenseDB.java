@@ -156,6 +156,33 @@ public class ExpenseDB extends SQLiteOpenHelper{
     }
 
 
+    public ExpCategory GetExpCategoryFromUID(String uid) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query, name;
+        Cursor res;
+        ExpCategory category;
+
+        query = "SELECT * FROM " + EXP_CAT_TABLE + " WHERE uid = '" + uid + "';";
+        Log.d(TAG, query);
+        res = db.rawQuery(query, null);
+        res.moveToFirst();
+
+        if (res.getCount() <= 0) {
+            category = new ExpCategory("Empty", "Invalid");
+            res.close();
+            return category;
+        }
+
+        Log.d(TAG, "Number of Expense Categories = "+res.getCount());
+        name = res.getString(res.getColumnIndex("name"));
+        uid = res.getString(res.getColumnIndex("uid"));
+        category = new ExpCategory(name, uid);
+
+        res.close();
+        db.close();
+        return category;
+    }
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Sender Table Functions
@@ -207,7 +234,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
     public List<SmsSender> GetSenderList() {
         SQLiteDatabase db = this.getWritableDatabase();
         List<SmsSender> senderList = new ArrayList<>();
-        String query, name;
+        String query, name, cat_uid;
         int id;
         Cursor res;
         SmsSender sender;
@@ -230,6 +257,8 @@ public class ExpenseDB extends SQLiteOpenHelper{
             name = res.getString(res.getColumnIndex("name"));
             id = res.getInt(res.getColumnIndex(PKEY));
             sender = new SmsSender(name, id);
+            cat_uid = res.getString(res.getColumnIndex("cat_uid"));
+            sender.expCategory = GetExpCategoryFromUID(cat_uid);
             senderList.add(sender);
 
             res.moveToNext();
