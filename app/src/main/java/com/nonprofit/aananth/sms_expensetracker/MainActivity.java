@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,10 +21,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     final int REQUEST_CODE_ASK_PERMISSIONS = 123;
+
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLinearLayoutManager;
+    private MainActivityRecyclerAdapter mSmsSenderRecyclerAdapter;
+    private boolean mRcVwInitialized;
+    private boolean mRcVwUpdateNeeded;
+
+    private List<SmsSender> mSmsSenderList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,12 +67,27 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
+        // main code
         if(ContextCompat.checkSelfPermission(getBaseContext(), "android.permission.READ_SMS")
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_SMS"},
                     REQUEST_CODE_ASK_PERMISSIONS);
         }
         refreshSmsInbox();
+
+        // prepare view
+        renderExpensesRecycleView();
+        mRcVwInitialized = true;
+    }
+
+    protected void onResume() {
+        super.onResume();
+
+        if (mRcVwInitialized & mRcVwUpdateNeeded) {
+            mSmsSenderList.clear();
+            mSmsSenderList.addAll(getSmsSendersList());
+            mSmsSenderRecyclerAdapter.notifyDataSetChanged();
+        }
     }
 
 
@@ -148,4 +175,41 @@ public class MainActivity extends AppCompatActivity
         public abstract void onClick(View view, int position);
         public abstract void onLongClick(View view, int position);
     }
+
+    private List<SmsSender> getSmsSendersList() {
+        ExpenseDB expDb = new ExpenseDB(this);
+        return expDb.GetSenderList();
+    }
+
+    public void renderExpensesRecycleView() {
+        mRecyclerView = (RecyclerView) findViewById(R.id.expenses_list);
+        if (mRecyclerView == null) {
+            Log.d(TAG, "renderExpensesRecycleView: mRecylerView is null!!");
+            return;
+        }
+        mLinearLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+        mSmsSenderList = getSmsSendersList();
+        mSmsSenderRecyclerAdapter = new MainActivityRecyclerAdapter(mSmsSenderList);
+        mRecyclerView.addItemDecoration(new DividerItemDecorator(this, LinearLayoutManager.VERTICAL));
+        mRecyclerView.setAdapter(mSmsSenderRecyclerAdapter);
+
+        mSmsSenderRecyclerAdapter.notifyDataSetChanged();
+
+        mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
+                mRecyclerView, new MainActivity.ClickListener() {
+            @Override
+            public void onClick(View view, final int position) {
+                Log.d(TAG, "onClick()");
+                // handle this event
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+                Log.d(TAG, "onLongClick()");
+                // handle this event
+            }
+        }));
+    }
+
 }
