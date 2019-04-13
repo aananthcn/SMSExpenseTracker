@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ExpenseViewActivty">
+
+    <TextView
+        android:id="@+id/sms_body"
+        android:layout_width="340dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="32dp"
+        android:text="SMS Content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sender_name" />
+
+    <TextView
+        android:id="@+id/sender_name"
+        android:layout_width="340dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginTop="47dp"
+        android:text="HDFC"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</android.support.constraint.ConstraintLayout>

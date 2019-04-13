@@ -140,7 +140,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
             return expCatList;
         }
 
-        Log.d(TAG, "Number of Expense Categories = "+res.getCount());
+        Log.d(TAG, "Number of com.nonprofit.aananth.sms_expensetracker.Expense Categories = "+res.getCount());
         while (!res.isAfterLast()){
             name = res.getString(res.getColumnIndex("name"));
             uid = res.getString(res.getColumnIndex("uid"));
@@ -173,7 +173,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
             return category;
         }
 
-        Log.d(TAG, "Number of Expense Categories = "+res.getCount());
+        Log.d(TAG, "Number of com.nonprofit.aananth.sms_expensetracker.Expense Categories = "+res.getCount());
         name = res.getString(res.getColumnIndex("name"));
         uid = res.getString(res.getColumnIndex("uid"));
         category = new ExpCategory(name, uid);

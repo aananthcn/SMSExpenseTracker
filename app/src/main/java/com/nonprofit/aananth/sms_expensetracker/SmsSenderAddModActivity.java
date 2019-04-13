@@ -31,7 +31,7 @@ public class SmsSenderAddModActivity extends AppCompatActivity {
             mSmsSender = new SmsSender("");
         }
         else {
-            setTitle("Edit Expense Category");
+            setTitle("Edit com.nonprofit.aananth.sms_expensetracker.Expense Category");
             mSmsSender = (SmsSender) intent.getSerializableExtra("sender");
             mIsNew = false;
         }

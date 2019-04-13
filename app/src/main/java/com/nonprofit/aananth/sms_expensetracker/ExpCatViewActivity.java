@@ -30,7 +30,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.exp_cat_activity_view);
-        setTitle("Expense Categories");
+        setTitle("com.nonprofit.aananth.sms_expensetracker.Expense Categories");
 
         // main code
         renderExpCatRecycleView();

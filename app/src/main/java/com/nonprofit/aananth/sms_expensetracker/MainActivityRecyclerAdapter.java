@@ -9,23 +9,23 @@ import android.widget.TextView;
 import java.util.List;
 
 public class MainActivityRecyclerAdapter extends RecyclerView.Adapter<MainActivityRecyclerAdapter.ViewHolder> {
-    private List<SmsSender> mSmsSenderList;
+    private List<Expense> mExpenseList;
 
     // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
     protected static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView smsSender;
-        private TextView totalMoney;
+        private TextView money;
 
         private ViewHolder(View view) {
             super(view);
             smsSender = (TextView) view.findViewById(R.id.sender_name);
-            totalMoney = (TextView) view.findViewById(R.id.total_money);
+            money = (TextView) view.findViewById(R.id.money);
         }
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public MainActivityRecyclerAdapter(List<SmsSender> senders) {
-        this.mSmsSenderList = senders;
+    public MainActivityRecyclerAdapter(List<Expense> expenses) {
+        this.mExpenseList = expenses;
     }
 
     // Create new views (invoked by the layout manager)
@@ -51,14 +51,20 @@ public class MainActivityRecyclerAdapter extends RecyclerView.Adapter<MainActivi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
-        SmsSender sender = mSmsSenderList.get(position);
-        holder.smsSender.setText(sender.name);
-        holder.totalMoney.setText(sender.expCategory.expCatName);
+        Expense expense = mExpenseList.get(position);
+        holder.smsSender.setText(expense.mSender.name);
+        holder.money.setText(Double.toString(expense.mMoney));
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mSmsSenderList.size();
+        int count = 0;
+
+        if (mExpenseList != null) {
+            count = mExpenseList.size();
+        }
+
+        return count;
     }
 }

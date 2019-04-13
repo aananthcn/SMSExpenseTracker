@@ -26,12 +26,12 @@ public class ExpCatAddModActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String message = intent.getStringExtra(EXTRA_MESSAGE);
         if (message.equals("new")) {
-            setTitle("Add Expense Category");
+            setTitle("Add com.nonprofit.aananth.sms_expensetracker.Expense Category");
             mIsNew = true;
             mExpCat = new ExpCategory("");
         }
         else {
-            setTitle("Edit Expense Category");
+            setTitle("Edit com.nonprofit.aananth.sms_expensetracker.Expense Category");
             mIsNew = false;
             mExpCat = (ExpCategory) intent.getSerializableExtra("expcat");
         }
@@ -82,7 +82,7 @@ public class ExpCatAddModActivity extends AppCompatActivity {
         expcat_txt = (EditText) findViewById(R.id.expcat_text);
 
         if (expcat_txt.getText().toString().length() == 0) {
-            Log.d(TAG, "Empty string in Expense Catogory");
+            Log.d(TAG, "Empty string in com.nonprofit.aananth.sms_expensetracker.Expense Catogory");
             return;
         }
 

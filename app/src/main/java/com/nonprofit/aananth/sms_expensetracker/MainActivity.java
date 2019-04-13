@@ -25,6 +25,7 @@ import android.view.View;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity
     private boolean mRcVwInitialized;
     private boolean mRcVwUpdateNeeded;
 
-    private List<SmsSender> mSmsSenderList;
+    private List<Expense> mExpenseList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity
         setTitle("Main Window");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        mExpenseList = new ArrayList<Expense>();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -67,7 +69,6 @@ public class MainActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_SMS"},
                     REQUEST_CODE_ASK_PERMISSIONS);
         }
-        mSmsSenderList = getSmsSendersList();
         refreshSmsInbox();
 
         // prepare view
@@ -79,8 +80,6 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
 
         if (mRcVwInitialized & mRcVwUpdateNeeded) {
-            mSmsSenderList.clear();
-            mSmsSenderList.addAll(getSmsSendersList());
             mSmsSenderRecyclerAdapter.notifyDataSetChanged();
         }
     }
@@ -115,18 +114,9 @@ public class MainActivity extends AppCompatActivity
 
             if (body.toLowerCase().contains(MONEY_SEP)) {
                 money = parseMoneyFromMessage(body);
-
-                // FIXME: Following 3 lines are done for testing purpose only!!
-                ExpCategory expCategory = new ExpCategory(money.toString());
-                SmsSender smsSndr = new SmsSender(sender, 0, expCategory);
-                mSmsSenderList.add(smsSndr);
-
-                for (SmsSender smsSender : mSmsSenderList) {
-                    if (sender.toLowerCase().contains(smsSender.name.toLowerCase())) {
-                        break;
-                    }
-                    Log.d(TAG, "Sender: " + sender + ", Money: Rs." + money);
-                }
+                SmsSender smsSender = new SmsSender(sender);
+                Expense expense = new Expense(money, body, null, smsSender);
+                mExpenseList.add(expense);
             }
             Log.d(TAG, "Sender: " + sender);
             //arrayAdapter.add(str);
@@ -184,7 +174,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.exp_categories) {
             Intent intent = new Intent(this, ExpCatViewActivity.class);
-            Log.d(TAG, "Switching to View Expense Categories");
+            Log.d(TAG, "Switching to View com.nonprofit.aananth.sms_expensetracker.Expense Categories");
             startActivity(intent);
         } else if (id == R.id.sms_senders) {
             Intent intent = new Intent(this, SmsSendersViewActivity.class);
@@ -226,7 +216,7 @@ public class MainActivity extends AppCompatActivity
         }
         mLinearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mSmsSenderRecyclerAdapter = new MainActivityRecyclerAdapter(mSmsSenderList);
+        mSmsSenderRecyclerAdapter = new MainActivityRecyclerAdapter(mExpenseList);
         mRecyclerView.addItemDecoration(new DividerItemDecorator(this, LinearLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(mSmsSenderRecyclerAdapter);
 
@@ -238,6 +228,10 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view, final int position) {
                 Log.d(TAG, "onClick()");
                 // handle this event
+                Intent intent = new Intent(MainActivity.this, ExpenseViewActivty.class);
+                Log.d(TAG, "Switching to View SMS Details");
+                intent.putExtra("expense", mExpenseList.get(position));
+                startActivity(intent);
             }
 
             @Override
