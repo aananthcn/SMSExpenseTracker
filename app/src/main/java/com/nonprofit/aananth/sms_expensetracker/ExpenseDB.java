@@ -247,6 +247,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
 
         if (res.getCount() <= 0) {
             sender = new SmsSender("Empty", 0);
+            sender.expCategory = new ExpCategory("Null");
             senderList.add(sender);
             res.close();
             return senderList;

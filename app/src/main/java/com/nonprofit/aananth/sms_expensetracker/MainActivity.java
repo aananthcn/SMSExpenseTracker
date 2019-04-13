@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,12 +22,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     final int REQUEST_CODE_ASK_PERMISSIONS = 123;
+    final String MONEY_SEP = "spent rs.";
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
@@ -44,19 +51,6 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //int titleId = getResources().getIdentifier("action_bar_title", "id", "android");
-        //TextView abTitle = (TextView) findViewById(titleId);
-        //abTitle.setTextColor(0x838300);
-
-        //FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        //fab.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View view) {
-        //        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-        //                .setAction("Action", null).show();
-        //    }
-        //});
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -73,6 +67,7 @@ public class MainActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_SMS"},
                     REQUEST_CODE_ASK_PERMISSIONS);
         }
+        mSmsSenderList = getSmsSendersList();
         refreshSmsInbox();
 
         // prepare view
@@ -91,20 +86,62 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public void refreshSmsInbox() {
+    private void refreshSmsInbox() {
+        String date_pattern = "yyyy/MM/dd";
+        DateFormat dateFormat = new SimpleDateFormat(date_pattern);
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MONTH, -2);
+        Date sdate = cal.getTime();
+        Date edate = new Date();
+        Double money = 0.0;
+        String filter = "date>=" + sdate.getTime() + " and date<=" + edate.getTime();
+        Log.d(TAG, dateFormat.format(sdate) + " to " + dateFormat.format(edate));
+        Log.d(TAG, filter);
+
         ContentResolver contentResolver = getContentResolver();
         Cursor smsInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"),
-                null, null, null, null);
+                null, filter, null, null);
         int indexBody = smsInboxCursor.getColumnIndex("body");
         int indexAddress = smsInboxCursor.getColumnIndex("address");
         if (indexBody < 0 || !smsInboxCursor.moveToFirst()) return;
         //arrayAdapter.clear();
         do {
-            String str = "SMS From: " + smsInboxCursor.getString(indexAddress) +
-                    "\n" + smsInboxCursor.getString(indexBody) + "\n";
-            Log.d(TAG, str);
+            //String str = "SMS From: " + smsInboxCursor.getString(indexAddress) +
+            //        "\n" + smsInboxCursor.getString(indexBody) + "\n";
+
+            String body = smsInboxCursor.getString(indexBody);
+            String sender = smsInboxCursor.getString(indexAddress);
+
+            if (body.toLowerCase().contains(MONEY_SEP)) {
+                money = parseMoneyFromMessage(body);
+
+                // FIXME: Following 3 lines are done for testing purpose only!!
+                ExpCategory expCategory = new ExpCategory(money.toString());
+                SmsSender smsSndr = new SmsSender(sender, 0, expCategory);
+                mSmsSenderList.add(smsSndr);
+
+                for (SmsSender smsSender : mSmsSenderList) {
+                    if (sender.toLowerCase().contains(smsSender.name.toLowerCase())) {
+                        break;
+                    }
+                    Log.d(TAG, "Sender: " + sender + ", Money: Rs." + money);
+                }
+            }
+            Log.d(TAG, "Sender: " + sender);
             //arrayAdapter.add(str);
         } while (smsInboxCursor.moveToNext());
+    }
+
+    private double parseMoneyFromMessage(String msg) {
+        double money;
+
+        msg = msg.toLowerCase();
+        String[] parts = msg.split(MONEY_SEP); // "ALERT: You've spent Rs.729.00  on CREDIT Card ..."
+        String money_str = parts[1].split(" ")[0]; // split the 2nd part based on space and take the first part
+        money = Double.parseDouble(money_str);
+
+        return money;
     }
 
     @Override
@@ -189,7 +226,6 @@ public class MainActivity extends AppCompatActivity
         }
         mLinearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mSmsSenderList = getSmsSendersList();
         mSmsSenderRecyclerAdapter = new MainActivityRecyclerAdapter(mSmsSenderList);
         mRecyclerView.addItemDecoration(new DividerItemDecorator(this, LinearLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(mSmsSenderRecyclerAdapter);
