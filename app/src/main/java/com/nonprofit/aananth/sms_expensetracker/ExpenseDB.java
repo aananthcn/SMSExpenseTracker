@@ -26,6 +26,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
     // sender tables, which contains list of senders that should be classified
     // under each category.
     public static final String EXP_CAT_TABLE = "expCatTable";
+    public static final String EXP_FILTER_LIST = "expFilterList";
     public static final String SMS_SENDER_LIST = "smsSenderList";
 
 
@@ -70,7 +71,59 @@ public class ExpenseDB extends SQLiteOpenHelper{
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    // Category Table Functions
+    // Expense Filter Table Functions
+
+    private void CreateExpFiltTableIfNotExists(SQLiteDatabase db) {
+        String query = "CREATE TABLE IF NOT EXISTS " + EXP_FILTER_LIST + " ( " + PKEY +
+                " INTEGER PRIMARY KEY AUTOINCREMENT, filter VARCHAR(255) )";
+        db.execSQL(query);
+    }
+
+    public void AddExpenseFilter(String expFilter) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        expFilter = expFilter.toLowerCase();
+        String query = "INSERT INTO " + EXP_FILTER_LIST + " (filter) VALUES ('" + expFilter + "')";
+
+        Log.d(TAG, query);
+        db.execSQL(query);
+
+        mDbChanged = true;
+        db.close();
+    }
+
+    public List<String> GetExpenseFilterList() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        List<String> expFilterList = null;
+        String query, filter;
+        int id;
+        Cursor res;
+
+        CreateExpFiltTableIfNotExists(db);
+        query = "SELECT * FROM " + EXP_FILTER_LIST + " ORDER BY " + PKEY;
+        Log.d(TAG, query);
+        res = db.rawQuery(query, null);
+        res.moveToFirst();
+
+        if (res.getCount() > 0) {
+            Log.d(TAG, "Number of filters = " + res.getCount());
+            expFilterList = new ArrayList<>();
+
+            while (!res.isAfterLast()) {
+                filter = res.getString(res.getColumnIndex("filter"));
+                expFilterList.add(filter);
+                res.moveToNext();
+            }
+        }
+
+        res.close();
+        db.close();
+        return expFilterList;
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Expense Category Table Functions
 
     private void CreateExpCatTableIfNotExists(SQLiteDatabase db) {
         String query = "CREATE TABLE IF NOT EXISTS " + EXP_CAT_TABLE + " ( " + PKEY +
@@ -137,6 +190,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
             category = new ExpCategory("Empty", "Invalid");
             expCatList.add(category);
             res.close();
+            db.close();
             return expCatList;
         }
 
@@ -170,6 +224,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
         if (res.getCount() <= 0) {
             category = new ExpCategory("Empty", "Invalid");
             res.close();
+            db.close();
             return category;
         }
 
@@ -250,6 +305,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
             sender.expCategory = new ExpCategory("Null");
             senderList.add(sender);
             res.close();
+            db.close();
             return senderList;
         }
 

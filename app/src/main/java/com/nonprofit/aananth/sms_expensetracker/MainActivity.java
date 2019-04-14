@@ -10,7 +10,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -24,7 +23,6 @@ import android.view.View;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,7 +32,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     final int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    final String MONEY_SEP = "spent rs.";
+    //final String MONEY_SEP = "spent rs.";
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
@@ -43,6 +41,7 @@ public class MainActivity extends AppCompatActivity
     private boolean mRcVwUpdateNeeded;
 
     private List<Expense> mExpenseList;
+    private List<String> mExpFilterList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +68,31 @@ public class MainActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this, new String[]{"android.permission.READ_SMS"},
                     REQUEST_CODE_ASK_PERMISSIONS);
         }
-        refreshSmsInbox();
+
+        // prepare filter for scan SMS
+        mExpFilterList = getExpenseFilterList();
+        scanSmsInboxForExpense();
 
         // prepare view
         renderExpensesRecycleView();
         mRcVwInitialized = true;
     }
+
+
+    private List<String> getExpenseFilterList() {
+        List<String> filterList;
+        ExpenseDB expDb = new ExpenseDB(this);
+
+        filterList = expDb.GetExpenseFilterList();
+        if (filterList == null) {
+            expDb.AddExpenseFilter("spent rs.");
+            expDb.AddExpenseFilter("debited with INR");
+            filterList = expDb.GetExpenseFilterList();
+        }
+
+        return filterList;
+    }
+
 
     protected void onResume() {
         super.onResume();
@@ -85,7 +103,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void refreshSmsInbox() {
+    private void scanSmsInboxForExpense() {
         String date_pattern = "yyyy/MM/dd";
         DateFormat dateFormat = new SimpleDateFormat(date_pattern);
 
@@ -104,30 +122,30 @@ public class MainActivity extends AppCompatActivity
         int indexBody = smsInboxCursor.getColumnIndex("body");
         int indexAddress = smsInboxCursor.getColumnIndex("address");
         if (indexBody < 0 || !smsInboxCursor.moveToFirst()) return;
-        //arrayAdapter.clear();
         do {
-            //String str = "SMS From: " + smsInboxCursor.getString(indexAddress) +
-            //        "\n" + smsInboxCursor.getString(indexBody) + "\n";
 
             String body = smsInboxCursor.getString(indexBody);
             String sender = smsInboxCursor.getString(indexAddress);
 
-            if (body.toLowerCase().contains(MONEY_SEP)) {
-                money = parseMoneyFromMessage(body);
-                SmsSender smsSender = new SmsSender(sender);
-                Expense expense = new Expense(money, body, null, smsSender);
-                mExpenseList.add(expense);
+            for (String exp_filter: mExpFilterList) {
+                Log.d(TAG, "filter: " + exp_filter);
+                if (body.toLowerCase().contains(exp_filter)) {
+                    money = parseMoneyFromMessage(body, exp_filter);
+                    SmsSender smsSender = new SmsSender(sender);
+                    Expense expense = new Expense(money, body, null, smsSender);
+                    mExpenseList.add(expense);
+                    break;
+                }
             }
             Log.d(TAG, "Sender: " + sender);
-            //arrayAdapter.add(str);
         } while (smsInboxCursor.moveToNext());
     }
 
-    private double parseMoneyFromMessage(String msg) {
+    private double parseMoneyFromMessage(String msg, String filter) {
         double money;
 
         msg = msg.toLowerCase();
-        String[] parts = msg.split(MONEY_SEP); // "ALERT: You've spent Rs.729.00  on CREDIT Card ..."
+        String[] parts = msg.split(filter); // "ALERT: You've spent Rs.729.00  on CREDIT Card ..."
         String money_str = parts[1].split(" ")[0]; // split the 2nd part based on space and take the first part
         money = Double.parseDouble(money_str);
 
@@ -201,11 +219,6 @@ public class MainActivity extends AppCompatActivity
     public static abstract class ClickListener{
         public abstract void onClick(View view, int position);
         public abstract void onLongClick(View view, int position);
-    }
-
-    private List<SmsSender> getSmsSendersList() {
-        ExpenseDB expDb = new ExpenseDB(this);
-        return expDb.GetSenderList();
     }
 
     public void renderExpensesRecycleView() {
