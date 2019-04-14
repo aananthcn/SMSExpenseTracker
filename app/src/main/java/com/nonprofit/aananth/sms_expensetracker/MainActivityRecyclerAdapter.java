@@ -13,13 +13,14 @@ public class MainActivityRecyclerAdapter extends RecyclerView.Adapter<MainActivi
 
     // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
     protected static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView smsSender;
-        private TextView money;
+        private TextView smsSender, money, date, address;
 
         private ViewHolder(View view) {
             super(view);
             smsSender = (TextView) view.findViewById(R.id.sender_name);
             money = (TextView) view.findViewById(R.id.money);
+            date = (TextView) view.findViewById(R.id.sms_date);
+            address = (TextView) view.findViewById(R.id.sms_addr_num);
         }
     }
 
@@ -54,6 +55,8 @@ public class MainActivityRecyclerAdapter extends RecyclerView.Adapter<MainActivi
         Expense expense = mExpenseList.get(position);
         holder.smsSender.setText(expense.mSender.name);
         holder.money.setText(Double.toString(expense.mMoney));
+        holder.date.setText(expense.mDate);
+        holder.address.setText(expense.mAddrNum);
     }
 
     // Return the size of your dataset (invoked by the layout manager)

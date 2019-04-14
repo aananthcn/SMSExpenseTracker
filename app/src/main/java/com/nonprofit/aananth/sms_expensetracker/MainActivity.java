@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void scanSmsInboxForExpense() {
-        String date_pattern = "yyyy/MM/dd";
+        String date_pattern = "yyyy-MM-dd";
         DateFormat dateFormat = new SimpleDateFormat(date_pattern);
 
         Calendar cal = Calendar.getInstance();
@@ -117,28 +118,33 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, filter);
 
         ContentResolver contentResolver = getContentResolver();
-        Cursor smsInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"),
+        Cursor cursor = contentResolver.query(Uri.parse("content://sms/inbox"),
                 null, filter, null, null);
-        int indexBody = smsInboxCursor.getColumnIndex("body");
-        int indexAddress = smsInboxCursor.getColumnIndex("address");
-        if (indexBody < 0 || !smsInboxCursor.moveToFirst()) return;
+        //String type = cursor.getString(cursor.getColumnIndex(Telephony.Sms.TYPE));
+        int indexBody = cursor.getColumnIndex(Telephony.Sms.BODY);
+        int indexAddress = cursor.getColumnIndex("address");
+        int indexDate = cursor.getColumnIndex(Telephony.Sms.DATE);
+
+        if (indexBody < 0 || !cursor.moveToFirst()) return;
         do {
 
-            String body = smsInboxCursor.getString(indexBody);
-            String sender = smsInboxCursor.getString(indexAddress);
+            String body = cursor.getString(indexBody);
+            String addr = cursor.getString(indexAddress);
+            Date smsDate = new Date(Long.valueOf(cursor.getString(indexDate)));
+            String date =  dateFormat.format(smsDate);
 
             for (String exp_filter: mExpFilterList) {
                 Log.d(TAG, "filter: " + exp_filter);
                 if (body.toLowerCase().contains(exp_filter)) {
                     money = parseMoneyFromMessage(body, exp_filter);
-                    SmsSender smsSender = new SmsSender(sender);
-                    Expense expense = new Expense(money, body, null, smsSender);
+                    SmsSender smsSender = new SmsSender(addr);
+                    Expense expense = new Expense(money, body, null, smsSender, date, addr);
                     mExpenseList.add(expense);
                     break;
                 }
             }
-            Log.d(TAG, "Sender: " + sender);
-        } while (smsInboxCursor.moveToNext());
+            Log.d(TAG, "Sender: " + addr);
+        } while (cursor.moveToNext());
     }
 
     private double parseMoneyFromMessage(String msg, String filter) {
