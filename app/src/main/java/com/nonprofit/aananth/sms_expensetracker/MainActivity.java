@@ -137,7 +137,8 @@ public class MainActivity extends AppCompatActivity
                 Log.d(TAG, "filter: " + exp_filter);
                 if (body.toLowerCase().contains(exp_filter)) {
                     money = parseMoneyFromMessage(body, exp_filter);
-                    SmsSender smsSender = new SmsSender(addr);
+                    String sender = parseSenderFromMessage(body);
+                    SmsSender smsSender = new SmsSender(sender);
                     Expense expense = new Expense(money, body, null, smsSender, date, addr);
                     mExpenseList.add(expense);
                     break;
@@ -156,6 +157,20 @@ public class MainActivity extends AppCompatActivity
         money = Double.parseDouble(money_str);
 
         return money;
+    }
+
+    private String parseSenderFromMessage(String msg) {
+        String sender;
+
+        try {
+            String[] parts = msg.split(" at ");
+            sender = parts[1].split(" on ")[0];
+        }
+        catch (Exception e) {
+            sender = "";
+        }
+
+        return sender;
     }
 
     @Override
