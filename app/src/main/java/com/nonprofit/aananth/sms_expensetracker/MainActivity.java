@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity
         if (filterList == null) {
             expDb.AddExpenseFilter("spent rs.");
             expDb.AddExpenseFilter("debited with INR");
+            expDb.AddExpenseFilter(" debited from ");
             filterList = expDb.GetExpenseFilterList();
         }
 
@@ -150,9 +151,17 @@ public class MainActivity extends AppCompatActivity
 
     private double parseMoneyFromMessage(String msg, String filter) {
         double money;
+        String separator;
+
+        if (filter.toLowerCase().contains("inr")) {
+            separator = "inr";
+        }
+        else {
+            separator = "rs.";
+        }
 
         msg = msg.toLowerCase();
-        String[] parts = msg.split(filter); // "ALERT: You've spent Rs.729.00  on CREDIT Card ..."
+        String[] parts = msg.split(separator); // "ALERT: You've spent Rs.729.00  on CREDIT Card ..."
         String money_str = parts[1].split(" ")[0]; // split the 2nd part based on space and take the first part
         money = Double.parseDouble(money_str);
 
