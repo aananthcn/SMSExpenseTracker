@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void scanSmsInboxForExpense() {
-        String date_pattern = "yyyy-MM-dd";
+        String date_pattern = "yyyy-MM-dd, EEE";
         DateFormat dateFormat = new SimpleDateFormat(date_pattern);
 
         Calendar cal = Calendar.getInstance();
@@ -169,11 +169,31 @@ public class MainActivity extends AppCompatActivity
     }
 
     private String parseSenderFromMessage(String msg, String filter) {
-        String sender;
+        String sender, start, end;
+
+        filter = filter.toLowerCase();
+        if (filter.contains("spent")) {
+            start = " at ";
+            end   = " on ";
+        }
+        else if (filter.contains("debited with")) {
+            start = "\\s*(and)\\s*";
+            end   = "\\s*(credited)\\s*";
+        }
+        else {
+            if (msg.contains("via")) {
+                start = "\\s*(for)\\s*";
+                end = "\\s*(via)\\s*";
+            }
+            else {
+                start = "\\s*(Info:)\\s*";
+                end = "\\s*[:.]\\s*";
+            }
+        }
 
         try {
-            String[] parts = msg.split("\\s*(at)\\s*");
-            sender = parts[1].split("\\s*(on)\\s*")[0];
+            String[] parts = msg.split(start);
+            sender = parts[1].split(end)[0];
         }
         catch (Exception e) {
             sender = "";
