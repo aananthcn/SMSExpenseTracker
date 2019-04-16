@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity
         if (filterList == null) {
             expDb.AddExpenseFilter("spent rs.");
             expDb.AddExpenseFilter("debited with INR");
-            expDb.AddExpenseFilter(" debited from ");
+            expDb.AddExpenseFilter("debited from");
             filterList = expDb.GetExpenseFilterList();
         }
 
@@ -137,8 +137,8 @@ public class MainActivity extends AppCompatActivity
             for (String exp_filter: mExpFilterList) {
                 Log.d(TAG, "filter: " + exp_filter);
                 if (body.toLowerCase().contains(exp_filter)) {
-                    money = parseMoneyFromMessage(body, exp_filter);
-                    String sender = parseSenderFromMessage(body);
+                    money = parseMoneyFromMessage(body);
+                    String sender = parseSenderFromMessage(body, exp_filter);
                     SmsSender smsSender = new SmsSender(sender);
                     Expense expense = new Expense(money, body, null, smsSender, date, addr);
                     mExpenseList.add(expense);
@@ -149,12 +149,12 @@ public class MainActivity extends AppCompatActivity
         } while (cursor.moveToNext());
     }
 
-    private double parseMoneyFromMessage(String msg, String filter) {
+    private double parseMoneyFromMessage(String msg) {
         double money;
         String separator;
 
-        if (filter.toLowerCase().contains("inr")) {
-            separator = "inr";
+        if (msg.toLowerCase().contains("inr")) {
+            separator = "inr\\s*";
         }
         else {
             separator = "rs.";
@@ -163,17 +163,17 @@ public class MainActivity extends AppCompatActivity
         msg = msg.toLowerCase();
         String[] parts = msg.split(separator); // "ALERT: You've spent Rs.729.00  on CREDIT Card ..."
         String money_str = parts[1].split(" ")[0]; // split the 2nd part based on space and take the first part
-        money = Double.parseDouble(money_str);
+        money = Double.parseDouble(money_str.replaceAll(",", ""));
 
         return money;
     }
 
-    private String parseSenderFromMessage(String msg) {
+    private String parseSenderFromMessage(String msg, String filter) {
         String sender;
 
         try {
-            String[] parts = msg.split(" at ");
-            sender = parts[1].split(" on ")[0];
+            String[] parts = msg.split("\\s*(at)\\s*");
+            sender = parts[1].split("\\s*(on)\\s*")[0];
         }
         catch (Exception e) {
             sender = "";
