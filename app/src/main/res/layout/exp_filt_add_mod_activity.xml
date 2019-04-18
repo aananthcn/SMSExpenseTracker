@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ExpenseFilterAddModActivity">
+
+    <TextView
+        android:id="@+id/filter_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Filter text to detect an Expense in SMS"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/filter"
+        android:layout_width="384dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="filter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filter_desc" />
+
+    <TextView
+        android:id="@+id/sender_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Sender delimiter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filter" />
+
+    <EditText
+        android:id="@+id/sender_start"
+        android:layout_width="183dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="Start"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sender_desc" />
+
+    <EditText
+        android:id="@+id/sender_end"
+        android:layout_width="178dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="End"
+        app:layout_constraintStart_toEndOf="@+id/sender_start"
+        app:layout_constraintTop_toBottomOf="@+id/sender_desc" />
+
+    <TextView
+        android:id="@+id/money_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Money delimiter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sender_start" />
+
+    <EditText
+        android:id="@+id/money_start"
+        android:layout_width="183dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="Start"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/money_desc" />
+
+    <EditText
+        android:id="@+id/money_end"
+        android:layout_width="178dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="End"
+        app:layout_constraintStart_toEndOf="@+id/money_start"
+        app:layout_constraintTop_toBottomOf="@+id/money_desc" />
+
+    <Button
+        android:id="@+id/btn_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="68dp"
+        android:layout_marginTop="24dp"
+        android:text="Delete"
+        android:onClick="DeleteExpenseFilter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/money_start" />
+
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="103dp"
+        android:layout_marginTop="24dp"
+        android:text="Save"
+        android:onClick="SaveExpenseFilter"
+        app:layout_constraintStart_toEndOf="@+id/btn_delete"
+        app:layout_constraintTop_toBottomOf="@+id/money_end" />
+</android.support.constraint.ConstraintLayout>

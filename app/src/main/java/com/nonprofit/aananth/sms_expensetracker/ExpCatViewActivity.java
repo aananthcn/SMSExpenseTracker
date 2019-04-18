@@ -44,6 +44,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
             mExpCategoryList.clear();
             mExpCategoryList.addAll(getExpCategoryList());
             mExpCatRecyclerAdapter.notifyDataSetChanged();
+            mRcVwUpdateNeeded = false;
         }
     }
 

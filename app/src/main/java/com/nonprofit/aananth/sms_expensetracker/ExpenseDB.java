@@ -74,8 +74,6 @@ public class ExpenseDB extends SQLiteOpenHelper{
     // Expense Filter Table Functions
 
     private void CreateExpFiltTableIfNotExists(SQLiteDatabase db) {
-        //String query = "CREATE TABLE IF NOT EXISTS " + EXP_FILTER_LIST + " ( " + PKEY +
-        //        " INTEGER PRIMARY KEY AUTOINCREMENT, filter VARCHAR(255) )";
         String query = "CREATE TABLE IF NOT EXISTS " + EXP_FILTER_LIST + " ( " + PKEY +
                 " INTEGER PRIMARY KEY AUTOINCREMENT, filter VARCHAR(255), sender_start VARCHAR(64)," +
                 " sender_end VARCHAR(64), money_start VARCHAR(64), money_end VARCHAR(64) )";
@@ -120,6 +118,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
                 ms = res.getString(res.getColumnIndex("money_start"));
                 me = res.getString(res.getColumnIndex("money_end"));
                 ExpenseFilter ef = new ExpenseFilter(filter, ss, se, ms, me);
+                ef.setId(res.getInt(res.getColumnIndex(PKEY)));
                 expFilterList.add(ef);
                 res.moveToNext();
             }
@@ -129,6 +128,32 @@ public class ExpenseDB extends SQLiteOpenHelper{
         db.close();
         return expFilterList;
     }
+
+    public void UpdateExpenseFilter(ExpenseFilter ef) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "UPDATE " + EXP_FILTER_LIST + " SET filter = '" + ef.filter +
+                "', sender_start = '" + ef.sender_start + "', sender_end = '" + ef.sender_end +
+                "', money_start = '" + ef.money_start + "', money_end = '" + ef.money_end +
+                "' WHERE " + PKEY + " = '" + ef.id + "';";
+
+        Log.d(TAG, query);
+        db.execSQL(query);
+        mDbChanged = true;
+        db.close();
+    }
+
+    public void DeleteExpenseFilter(ExpenseFilter ef) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query;
+
+        // delete the filter entry
+        query = "DELETE FROM " + EXP_FILTER_LIST + " WHERE " + PKEY + " = '" + ef.id + "';";
+        Log.d(TAG, query);
+        db.execSQL(query);
+        mDbChanged = true;
+        db.close();
+    }
+
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +200,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
         Log.d(TAG, query);
         db.execSQL(query);
 
-        // delete the patient
+        // delete the category entry
         query = "DELETE FROM " + EXP_CAT_TABLE + " WHERE uid = '" + expCategory.uid + "';";
         Log.d(TAG, query);
         db.execSQL(query);
@@ -203,7 +228,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
             return expCatList;
         }
 
-        Log.d(TAG, "Number of com.nonprofit.aananth.sms_expensetracker.Expense Categories = "+res.getCount());
+        Log.d(TAG, "Number of Expense Categories = "+res.getCount());
         while (!res.isAfterLast()){
             name = res.getString(res.getColumnIndex("name"));
             uid = res.getString(res.getColumnIndex("uid"));

@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
-    private MainActivityRecyclerAdapter mSmsSenderRecyclerAdapter;
+    private MainActivityRecyclerAdapter mMainRecyclerAdapter;
     private boolean mRcVwInitialized;
     private boolean mRcVwUpdateNeeded;
 
@@ -79,6 +79,19 @@ public class MainActivity extends AppCompatActivity
         mRcVwInitialized = true;
     }
 
+    protected void onResume() {
+        super.onResume();
+
+        if (mRcVwInitialized & mRcVwUpdateNeeded) {
+            mExpFilterList = getExpenseFilterList();
+
+            // prepare view
+            mExpenseList.clear();
+            scanSmsInboxForExpense(); // fill-up the mExpFilterList
+            mMainRecyclerAdapter.notifyDataSetChanged();
+            mRcVwUpdateNeeded = false;
+        }
+    }
 
     private List<ExpenseFilter> getExpenseFilterList() {
         List<ExpenseFilter> filterList;
@@ -102,15 +115,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         return filterList;
-    }
-
-
-    protected void onResume() {
-        super.onResume();
-
-        if (mRcVwInitialized & mRcVwUpdateNeeded) {
-            mSmsSenderRecyclerAdapter.notifyDataSetChanged();
-        }
     }
 
 
@@ -145,13 +149,18 @@ public class MainActivity extends AppCompatActivity
 
             for (ExpenseFilter ef: mExpFilterList) {
                 Log.d(TAG, "filter: " + ef.filter);
-                if (body.toLowerCase().matches(ef.filter)) {
-                    money = parseMoneyFromMessage(body, ef);
-                    String sender = parseSenderFromMessage(body, ef);
-                    SmsSender smsSender = new SmsSender(sender);
-                    Expense expense = new Expense(money, body, null, smsSender, date, addr);
-                    mExpenseList.add(expense);
-                    break;
+                try {
+                    if (body.toLowerCase().matches(ef.filter)) {
+                        money = parseMoneyFromMessage(body, ef);
+                        String sender = parseSenderFromMessage(body, ef);
+                        SmsSender smsSender = new SmsSender(sender);
+                        Expense expense = new Expense(money, body, null, smsSender, date, addr);
+                        mExpenseList.add(expense);
+                        break;
+                    }
+                }
+                catch (Exception e) {
+                    Log.d(TAG, "Exception " + e.getMessage());
                 }
             }
             Log.d(TAG, "Sender: " + addr);
@@ -239,6 +248,7 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, ExpenseFilterViewActivty.class);
             Log.d(TAG, "Switching to View Expense Filters");
             startActivity(intent);
+            mRcVwUpdateNeeded = true;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -260,11 +270,11 @@ public class MainActivity extends AppCompatActivity
         }
         mLinearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mSmsSenderRecyclerAdapter = new MainActivityRecyclerAdapter(mExpenseList);
+        mMainRecyclerAdapter = new MainActivityRecyclerAdapter(mExpenseList);
         mRecyclerView.addItemDecoration(new DividerItemDecorator(this, LinearLayoutManager.VERTICAL));
-        mRecyclerView.setAdapter(mSmsSenderRecyclerAdapter);
+        mRecyclerView.setAdapter(mMainRecyclerAdapter);
 
-        mSmsSenderRecyclerAdapter.notifyDataSetChanged();
+        mMainRecyclerAdapter.notifyDataSetChanged();
 
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                 mRecyclerView, new MainActivity.ClickListener() {

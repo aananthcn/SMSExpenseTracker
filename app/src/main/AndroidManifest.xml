@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ExpenseFilterViewActivty"></activity>
+        <activity android:name=".ExpenseFilterAddModActivity"></activity>
+        <activity android:name=".ExpenseFilterViewActivty" />
         <activity android:name=".ExpenseViewActivty" />
         <activity android:name=".CategorizeSenderActivity" />
         <activity android:name=".SmsSenderAddModActivity" />

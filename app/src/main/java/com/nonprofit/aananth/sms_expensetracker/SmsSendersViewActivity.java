@@ -48,6 +48,7 @@ public class SmsSendersViewActivity extends AppCompatActivity {
             mSmsSenderList.clear();
             mSmsSenderList.addAll(getSmsSendersList());
             mSmsSenderRecyclerAdapter.notifyDataSetChanged();
+            mRcVwUpdateNeeded = false;
         }
     }
 
