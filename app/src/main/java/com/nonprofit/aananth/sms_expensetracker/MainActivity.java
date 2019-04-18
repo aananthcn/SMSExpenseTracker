@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity
     private boolean mRcVwUpdateNeeded;
 
     private List<Expense> mExpenseList;
-    private List<String> mExpFilterList;
+    private List<ExpenseFilter> mExpFilterList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,15 +80,24 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private List<String> getExpenseFilterList() {
-        List<String> filterList;
+    private List<ExpenseFilter> getExpenseFilterList() {
+        List<ExpenseFilter> filterList;
         ExpenseDB expDb = new ExpenseDB(this);
 
         filterList = expDb.GetExpenseFilterList();
         if (filterList == null) {
-            expDb.AddExpenseFilter("spent rs.");
-            expDb.AddExpenseFilter("debited with INR");
-            expDb.AddExpenseFilter("debited from");
+            ExpenseFilter ef1 = new ExpenseFilter("(?s).*\\bspent rs.\\b.*", " at ", " on ",
+                    "Rs.", " ");
+            expDb.AddExpenseFilter(ef1);
+            ExpenseFilter ef2 = new ExpenseFilter("(?s).*\\bdebited with INR\\b.*", "\\s*(and)\\s*",
+                    "\\s*(credited)\\s*", "INR", " ");
+            expDb.AddExpenseFilter(ef2);
+            ExpenseFilter ef3 = new ExpenseFilter("(?s).*\\bINR\\b.*\\bdebited\\b.*",
+                    "\\s*(Info:)\\s*", "\\s*[:.]\\s*", "INR ", " ");
+            expDb.AddExpenseFilter(ef3);
+            ExpenseFilter ef4 = new ExpenseFilter("(?s).*\\bis debited from\\b.*", "\\s*(for)\\s*",
+                    "\\s*(via)\\s*", "Rs.", " ");
+            expDb.AddExpenseFilter(ef4);
             filterList = expDb.GetExpenseFilterList();
         }
 
@@ -134,11 +143,11 @@ public class MainActivity extends AppCompatActivity
             Date smsDate = new Date(Long.valueOf(cursor.getString(indexDate)));
             String date =  dateFormat.format(smsDate);
 
-            for (String exp_filter: mExpFilterList) {
-                Log.d(TAG, "filter: " + exp_filter);
-                if (body.toLowerCase().contains(exp_filter)) {
-                    money = parseMoneyFromMessage(body);
-                    String sender = parseSenderFromMessage(body, exp_filter);
+            for (ExpenseFilter ef: mExpFilterList) {
+                Log.d(TAG, "filter: " + ef.filter);
+                if (body.toLowerCase().matches(ef.filter)) {
+                    money = parseMoneyFromMessage(body, ef);
+                    String sender = parseSenderFromMessage(body, ef);
                     SmsSender smsSender = new SmsSender(sender);
                     Expense expense = new Expense(money, body, null, smsSender, date, addr);
                     mExpenseList.add(expense);
@@ -149,8 +158,9 @@ public class MainActivity extends AppCompatActivity
         } while (cursor.moveToNext());
     }
 
-    private double parseMoneyFromMessage(String msg) {
+    private double parseMoneyFromMessage(String msg, ExpenseFilter ef) {
         double money;
+        /*
         String separator;
 
         if (msg.toLowerCase().contains("inr")) {
@@ -159,41 +169,26 @@ public class MainActivity extends AppCompatActivity
         else {
             separator = "rs.";
         }
-
         msg = msg.toLowerCase();
-        String[] parts = msg.split(separator); // "ALERT: You've spent Rs.729.00  on CREDIT Card ..."
-        String money_str = parts[1].split(" ")[0]; // split the 2nd part based on space and take the first part
-        money = Double.parseDouble(money_str.replaceAll(",", ""));
+*/
+        try {
+            String[] parts = msg.split(ef.money_start); // "ALERT: You've spent Rs.729.00  on CREDIT Card ..."
+            String money_str = parts[1].split(ef.money_end)[0]; // split the 2nd part based on space and take the first part
+            money = Double.parseDouble(money_str.replaceAll(",", ""));
+        }
+        catch (Exception e) {
+            money = 0.0;
+        }
 
         return money;
     }
 
-    private String parseSenderFromMessage(String msg, String filter) {
-        String sender, start, end;
-
-        filter = filter.toLowerCase();
-        if (filter.contains("spent")) {
-            start = " at ";
-            end   = " on ";
-        }
-        else if (filter.contains("debited with")) {
-            start = "\\s*(and)\\s*";
-            end   = "\\s*(credited)\\s*";
-        }
-        else {
-            if (msg.contains("via")) {
-                start = "\\s*(for)\\s*";
-                end = "\\s*(via)\\s*";
-            }
-            else {
-                start = "\\s*(Info:)\\s*";
-                end = "\\s*[:.]\\s*";
-            }
-        }
+    private String parseSenderFromMessage(String msg, ExpenseFilter ef) {
+        String sender;
 
         try {
-            String[] parts = msg.split(start);
-            sender = parts[1].split(end)[0];
+            String[] parts = msg.split(ef.sender_start);
+            sender = parts[1].split(ef.sender_end)[0];
         }
         catch (Exception e) {
             sender = "";

@@ -74,16 +74,20 @@ public class ExpenseDB extends SQLiteOpenHelper{
     // Expense Filter Table Functions
 
     private void CreateExpFiltTableIfNotExists(SQLiteDatabase db) {
+        //String query = "CREATE TABLE IF NOT EXISTS " + EXP_FILTER_LIST + " ( " + PKEY +
+        //        " INTEGER PRIMARY KEY AUTOINCREMENT, filter VARCHAR(255) )";
         String query = "CREATE TABLE IF NOT EXISTS " + EXP_FILTER_LIST + " ( " + PKEY +
-                " INTEGER PRIMARY KEY AUTOINCREMENT, filter VARCHAR(255) )";
+                " INTEGER PRIMARY KEY AUTOINCREMENT, filter VARCHAR(255), sender_start VARCHAR(64)," +
+                " sender_end VARCHAR(64), money_start VARCHAR(64), money_end VARCHAR(64) )";
         db.execSQL(query);
     }
 
-    public void AddExpenseFilter(String expFilter) {
+    public void AddExpenseFilter(ExpenseFilter ef) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        expFilter = expFilter.toLowerCase();
-        String query = "INSERT INTO " + EXP_FILTER_LIST + " (filter) VALUES ('" + expFilter + "')";
+        String query = "INSERT INTO " + EXP_FILTER_LIST + " (filter, sender_start, sender_end, " +
+                "money_start, money_end) VALUES ('" + ef.filter + "', '" + ef.sender_start + "', '" +
+                ef.sender_end + "" + "', '" + ef.money_start + "', '" + ef.money_end + "')";
 
         Log.d(TAG, query);
         db.execSQL(query);
@@ -92,10 +96,10 @@ public class ExpenseDB extends SQLiteOpenHelper{
         db.close();
     }
 
-    public List<String> GetExpenseFilterList() {
+    public List<ExpenseFilter> GetExpenseFilterList() {
         SQLiteDatabase db = this.getWritableDatabase();
-        List<String> expFilterList = null;
-        String query, filter;
+        List<ExpenseFilter> expFilterList = null;
+        String query, filter, ss, se, ms, me;
         int id;
         Cursor res;
 
@@ -111,7 +115,12 @@ public class ExpenseDB extends SQLiteOpenHelper{
 
             while (!res.isAfterLast()) {
                 filter = res.getString(res.getColumnIndex("filter"));
-                expFilterList.add(filter);
+                ss = res.getString(res.getColumnIndex("sender_start"));
+                se = res.getString(res.getColumnIndex("sender_end"));
+                ms = res.getString(res.getColumnIndex("money_start"));
+                me = res.getString(res.getColumnIndex("money_end"));
+                ExpenseFilter ef = new ExpenseFilter(filter, ss, se, ms, me);
+                expFilterList.add(ef);
                 res.moveToNext();
             }
         }
