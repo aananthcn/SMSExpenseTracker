@@ -2,13 +2,12 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ExpCatViewActivity">
+    tools:context=".ExpenseFilterViewActivty">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/exp_cat_recycler_view"
+        android:id="@+id/exp_filter_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scrollbars="vertical"
@@ -18,14 +17,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionAddExpCat"
+        android:id="@+id/floatingActionAddFilt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:clickable="true"
         android:focusable="true"
-        android:onClick="AddSmsSender"
+        android:onClick="AddExpenseFilter"
         app:backgroundTint="@color/colorPrimaryDark"
         app:fabSize="mini"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -14,12 +14,11 @@ public class ExpenseViewActivty extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_expense_view_activty);
+        setTitle("Expense Details View");
 
         // get all arguments from the caller
         Intent intent = getIntent();
         mExpense = (Expense) intent.getSerializableExtra("expense");
-        //setTitle("Senders of \"" + mExpCat.expCatName + "\"");
-        setTitle("Expense Details View");
 
         TextView senderTxt = (TextView) findViewById(R.id.sender_name);
         senderTxt.setText(mExpense.mSender.name);

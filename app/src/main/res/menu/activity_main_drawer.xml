@@ -5,6 +5,10 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/exp_filters"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Expense Filters" />
+        <item
             android:id="@+id/sms_senders"
             android:icon="@drawable/ic_menu_manage"
             android:title="SMS Senders" />
@@ -12,10 +16,6 @@
             android:id="@+id/exp_categories"
             android:icon="@drawable/ic_menu_manage"
             android:title="Expense Categories" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_assignment_category"

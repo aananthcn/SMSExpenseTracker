@@ -34,7 +34,6 @@ public class SmsSendersViewActivity extends AppCompatActivity {
         // get all arguments from the caller
         Intent intent = getIntent();
         mExpCat = (ExpCategory) intent.getSerializableExtra("expcat");
-        //setTitle("Senders of \"" + mExpCat.expCatName + "\"");
         setTitle("SMS Senders");
 
         // main code

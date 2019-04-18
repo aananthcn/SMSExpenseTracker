@@ -30,7 +30,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.exp_cat_activity_view);
-        setTitle("com.nonprofit.aananth.sms_expensetracker.Expense Categories");
+        setTitle("Expense Categories");
 
         // main code
         renderExpCatRecycleView();
@@ -85,7 +85,6 @@ public class ExpCatViewActivity extends AppCompatActivity {
                 Log.d(TAG, "Switching to View Categories");
                 intent.putExtra(EXTRA_MESSAGE, "modify");
                 intent.putExtra("expcat", mExpCategory);
-                //startActivityForResult(intent, ADD_MODIFY_CAT);
                 startActivity(intent);
                 mRcVwUpdateNeeded = true;
             }
@@ -99,26 +98,6 @@ public class ExpCatViewActivity extends AppCompatActivity {
         startActivity(intent);
         mRcVwUpdateNeeded = true;
     }
-
-    /*@Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                 Intent resultData) {
-        super.onActivityResult(requestCode, resultCode, resultData);
-
-        switch (requestCode) {
-            case ADD_MODIFY_CAT:
-                if (resultCode == Activity.RESULT_OK) {
-                    Log.d(TAG, "onActivityResult()::ADD_MODIFY_CAT");
-                    String strLoginResult = resultData.getStringExtra("update_needed");
-
-                    if (strLoginResult.equalsIgnoreCase("yes")) {
-                        refreshExpCatList();
-                        renderExpCatRecycleView();
-                    }
-                }
-                break;
-        }
-    }*/
 
     private List<ExpCategory> getExpCategoryList() {
         ExpenseDB expDb = new ExpenseDB(this);

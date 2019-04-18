@@ -160,17 +160,7 @@ public class MainActivity extends AppCompatActivity
 
     private double parseMoneyFromMessage(String msg, ExpenseFilter ef) {
         double money;
-        /*
-        String separator;
 
-        if (msg.toLowerCase().contains("inr")) {
-            separator = "inr\\s*";
-        }
-        else {
-            separator = "rs.";
-        }
-        msg = msg.toLowerCase();
-*/
         try {
             String[] parts = msg.split(ef.money_start); // "ALERT: You've spent Rs.729.00  on CREDIT Card ..."
             String money_str = parts[1].split(ef.money_end)[0]; // split the 2nd part based on space and take the first part
@@ -237,7 +227,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.exp_categories) {
             Intent intent = new Intent(this, ExpCatViewActivity.class);
-            Log.d(TAG, "Switching to View com.nonprofit.aananth.sms_expensetracker.Expense Categories");
+            Log.d(TAG, "Switching to View Expense Categories");
             startActivity(intent);
         } else if (id == R.id.sms_senders) {
             Intent intent = new Intent(this, SmsSendersViewActivity.class);
@@ -245,14 +235,10 @@ public class MainActivity extends AppCompatActivity
             ExpCategory expCategory = new ExpCategory("*");
             intent.putExtra("expcat", expCategory);
             startActivity(intent);
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.exp_filters) {
+            Intent intent = new Intent(this, ExpenseFilterViewActivty.class);
+            Log.d(TAG, "Switching to View Expense Filters");
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
