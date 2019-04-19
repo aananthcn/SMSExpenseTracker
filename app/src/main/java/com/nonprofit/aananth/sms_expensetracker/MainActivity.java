@@ -165,6 +165,7 @@ public class MainActivity extends AppCompatActivity
 
         if (indexBody < 0 || !cursor.moveToFirst()) return;
         boolean valid_expense = false;
+        mTotalMoney = 0.0;
         do {
 
             String body = cursor.getString(indexBody);
