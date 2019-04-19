@@ -21,19 +21,21 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     final int REQUEST_CODE_ASK_PERMISSIONS = 123;
-    //final String MONEY_SEP = "spent rs.";
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity
 
     private List<Expense> mExpenseList;
     private List<ExpenseFilter> mExpFilterList;
+    private Double mTotalMoney = 0.0;
+    private Date mSdate, mMdate, mEdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +80,8 @@ public class MainActivity extends AppCompatActivity
 
         // prepare view
         renderExpensesRecycleView();
+        TextView footer = (TextView) findViewById(R.id.footer);
+        footer.setText(getFooterText());
         mRcVwInitialized = true;
     }
 
@@ -90,7 +96,22 @@ public class MainActivity extends AppCompatActivity
             scanSmsInboxForExpense(); // fill-up the mExpFilterList
             mMainRecyclerAdapter.notifyDataSetChanged();
             mRcVwUpdateNeeded = false;
+
+            TextView footer = (TextView) findViewById(R.id.footer);
+            footer.setText(getFooterText());
         }
+    }
+
+    private String getFooterText() {
+        String date_pattern = "MM/dd";
+        DateFormat dateFormat = new SimpleDateFormat(date_pattern);
+        String sdate = dateFormat.format(mMdate);
+        String edate = dateFormat.format(mEdate);
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("ta", "IN"));
+        String money = formatter.format(mTotalMoney);
+        String footer = money + " spent between " + sdate + " & " + edate;
+
+        return footer;
     }
 
     private List<ExpenseFilter> getExpenseFilterList() {
@@ -122,13 +143,16 @@ public class MainActivity extends AppCompatActivity
         String date_pattern = "yyyy-MM-dd, EEE";
         DateFormat dateFormat = new SimpleDateFormat(date_pattern);
 
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MONTH, -2);
-        Date sdate = cal.getTime();
-        Date edate = new Date();
+        Calendar cal2 = Calendar.getInstance();
+        cal2.add(Calendar.MONTH, -2); // last 2 months
+        mSdate = cal2.getTime();
+        Calendar cal1 = Calendar.getInstance();   // this takes current date
+        cal1.set(Calendar.DAY_OF_MONTH, 1);
+        mMdate = cal1.getTime();
+        mEdate = new Date();
         Double money = 0.0;
-        String filter = "date>=" + sdate.getTime() + " and date<=" + edate.getTime();
-        Log.d(TAG, dateFormat.format(sdate) + " to " + dateFormat.format(edate));
+        String filter = "date>=" + mSdate.getTime() + " and date<=" + mEdate.getTime();
+        Log.d(TAG, dateFormat.format(mSdate) + " to " + dateFormat.format(mEdate));
         Log.d(TAG, filter);
 
         ContentResolver contentResolver = getContentResolver();
@@ -140,6 +164,7 @@ public class MainActivity extends AppCompatActivity
         int indexDate = cursor.getColumnIndex(Telephony.Sms.DATE);
 
         if (indexBody < 0 || !cursor.moveToFirst()) return;
+        boolean valid_expense = false;
         do {
 
             String body = cursor.getString(indexBody);
@@ -147,6 +172,7 @@ public class MainActivity extends AppCompatActivity
             Date smsDate = new Date(Long.valueOf(cursor.getString(indexDate)));
             String date =  dateFormat.format(smsDate);
 
+            // collect all information
             for (ExpenseFilter ef: mExpFilterList) {
                 Log.d(TAG, "filter: " + ef.filter);
                 try {
@@ -156,12 +182,19 @@ public class MainActivity extends AppCompatActivity
                         SmsSender smsSender = new SmsSender(sender);
                         Expense expense = new Expense(money, body, null, smsSender, date, addr);
                         mExpenseList.add(expense);
+                        valid_expense = true;
                         break;
                     }
                 }
                 catch (Exception e) {
                     Log.d(TAG, "Exception " + e.getMessage());
                 }
+            }
+
+            // add to window total
+            if (valid_expense && (smsDate.after(mMdate) || smsDate.equals(mMdate))) {
+                mTotalMoney += money;
+                valid_expense = false; // mark it as accounted!
             }
             Log.d(TAG, "Sender: " + addr);
         } while (cursor.moveToNext());
