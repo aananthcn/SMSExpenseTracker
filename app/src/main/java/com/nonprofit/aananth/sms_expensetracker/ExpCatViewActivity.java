@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
@@ -21,6 +22,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
     private boolean mRcVwInitialized;
     private boolean mRcVwUpdateNeeded;
 
+    private ArrayList<Expense> mExpenseList;
     private List<ExpCategory> mExpCategoryList;
     private ExpCategory mExpCategory;
 
@@ -32,8 +34,13 @@ public class ExpCatViewActivity extends AppCompatActivity {
         setContentView(R.layout.exp_cat_activity_view);
         setTitle("Expense Categories");
 
+        // get all arguments from the caller
+        Intent intent = getIntent();
+        mExpenseList = (ArrayList<Expense>) intent.getSerializableExtra("explist");
+
         // main code
-        renderExpCatRecycleView();
+        mExpCategoryList = getExpCategoryList();
+        renderExpCatRecycleView(mExpCategoryList);
         mRcVwInitialized = true;
     }
 
@@ -48,7 +55,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
         }
     }
 
-    public void renderExpCatRecycleView() {
+    public void renderExpCatRecycleView(final List<ExpCategory> list) {
         //update_mode(Mode.VIEW_TREAT);
         mRecyclerView = (RecyclerView) findViewById(R.id.exp_cat_recycler_view);
         if (mRecyclerView == null) {
@@ -57,8 +64,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
         }
         mLinearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mExpCategoryList = getExpCategoryList();
-        mExpCatRecyclerAdapter = new ExpCatRecyclerAdapter(mExpCategoryList);
+        mExpCatRecyclerAdapter = new ExpCatRecyclerAdapter(list);
         mRecyclerView.addItemDecoration(new DividerItemDecorator(this, LinearLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(mExpCatRecyclerAdapter);
 
@@ -69,7 +75,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
             @Override
             public void onClick(View view, final int position) {
                 Log.d(TAG, "onClick()");
-                mExpCategory = mExpCategoryList.get(position);
+                mExpCategory = list.get(position);
 
                 Intent intent = new Intent(ExpCatViewActivity.this, SmsSendersViewActivity.class);
                 Log.d(TAG, "Switching to View SMS Senders view");
@@ -79,11 +85,11 @@ public class ExpCatViewActivity extends AppCompatActivity {
 
             @Override
             public void onLongClick(View view, int position) {
-                // edit treatment
-                mExpCategory = mExpCategoryList.get(position);
+                // edit expense category
+                mExpCategory = list.get(position);
 
                 Intent intent = new Intent(ExpCatViewActivity.this, ExpCatAddModActivity.class);
-                Log.d(TAG, "Switching to View Categories");
+                Log.d(TAG, "Switching to Edit Expense Category");
                 intent.putExtra(EXTRA_MESSAGE, "modify");
                 intent.putExtra("expcat", mExpCategory);
                 startActivity(intent);
@@ -102,6 +108,33 @@ public class ExpCatViewActivity extends AppCompatActivity {
 
     private List<ExpCategory> getExpCategoryList() {
         ExpenseDB expDb = new ExpenseDB(this);
-        return expDb.GetExpCategoryList();
+        List<ExpCategory> expcatlist = expDb.GetExpCategoryList();
+        List<SmsSender> senders = expDb.GetSenderList();
+
+        // parse expense list and add money to sender.money
+        for (Expense exp : mExpenseList) {
+            for (SmsSender sender : senders) {
+                boolean sender_search_complete = false;
+                try {
+                    if (exp.mSender.name.toLowerCase().contains(sender.name.toLowerCase())) {
+                        for (ExpCategory cat : expcatlist) {
+                            if (cat.expCatName.toLowerCase().equals(sender.expCategory.expCatName.toLowerCase())) {
+                                cat.money += exp.mMoney;
+                                sender_search_complete = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.d(TAG, e.getMessage());
+                }
+                if (sender_search_complete) {
+                    break;
+                }
+            }
+        }
+        return expcatlist;
     }
 }

@@ -6,7 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivityRecyclerAdapter extends RecyclerView.Adapter<MainActivityRecyclerAdapter.ViewHolder> {
     private List<Expense> mExpenseList;
@@ -54,7 +56,8 @@ public class MainActivityRecyclerAdapter extends RecyclerView.Adapter<MainActivi
         // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
         Expense expense = mExpenseList.get(position);
         holder.smsSender.setText(expense.mSender.name);
-        holder.money.setText(Double.toString(expense.mMoney));
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("ta", "IN"));
+        holder.money.setText(formatter.format(expense.mMoney));
         holder.date.setText(expense.mDate);
         holder.address.setText(expense.mAddrNum);
     }

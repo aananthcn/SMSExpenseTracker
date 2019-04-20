@@ -6,18 +6,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class ExpCatRecyclerAdapter extends RecyclerView.Adapter<ExpCatRecyclerAdapter.ViewHolder> {
     private List<ExpCategory> categories;
 
     // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
     protected static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView exp_category;
+        private TextView exp_category, exp_cat_money;
 
         private ViewHolder(View view) {
             super(view);
             exp_category = (TextView) view.findViewById(R.id.exp_cat_item);
+            exp_cat_money = (TextView) view.findViewById(R.id.exp_cat_money);
         }
     }
 
@@ -51,6 +54,8 @@ public class ExpCatRecyclerAdapter extends RecyclerView.Adapter<ExpCatRecyclerAd
         // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
         ExpCategory expCategory = categories.get(position);
         holder.exp_category.setText(expCategory.expCatName);
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("ta", "IN"));
+        holder.exp_cat_money.setText(formatter.format(expCategory.money));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

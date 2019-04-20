@@ -6,7 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class SmsSenderRecyclerAdapter extends RecyclerView.Adapter<SmsSenderRecyclerAdapter.ViewHolder> {
     private List<SmsSender> mSmsSenderList;
@@ -54,7 +56,8 @@ public class SmsSenderRecyclerAdapter extends RecyclerView.Adapter<SmsSenderRecy
         SmsSender sender = mSmsSenderList.get(position);
         holder.smsSender.setText(sender.name);
         holder.expCat.setText(sender.expCategory.expCatName);
-        holder.money.setText(Double.toString(sender.money));
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(new Locale("ta", "IN"));
+        holder.money.setText(formatter.format(sender.money));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

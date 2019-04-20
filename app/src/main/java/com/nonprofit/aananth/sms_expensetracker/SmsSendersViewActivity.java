@@ -66,6 +66,7 @@ public class SmsSendersViewActivity extends AppCompatActivity {
                 try {
                     if (exp.mSender.name.toLowerCase().contains(sender.name.toLowerCase())) {
                         sender.money += exp.mMoney;
+                        break;
                     }
                 }
                 catch (Exception e)
