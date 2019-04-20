@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     final int REQUEST_CODE_ASK_PERMISSIONS = 123;
+    final int DEFAULT_MONTH_SPAN = 2;
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity
     private boolean mRcVwInitialized;
     private boolean mRcVwUpdateNeeded;
 
-    private List<Expense> mExpenseList;
+    private ArrayList<Expense> mExpenseList;
     private List<ExpenseFilter> mExpFilterList;
     private Double mTotalMoney = 0.0;
     private Date mSdate, mMdate, mEdate;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setTitle("Main Window");
+        setTitle("Last " + DEFAULT_MONTH_SPAN + " month's Expenses");
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mExpenseList = new ArrayList<Expense>();
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity
         DateFormat dateFormat = new SimpleDateFormat(date_pattern);
 
         Calendar cal2 = Calendar.getInstance();
-        cal2.add(Calendar.MONTH, -2); // last 2 months
+        cal2.add(Calendar.MONTH, -DEFAULT_MONTH_SPAN); // last 2 months
         mSdate = cal2.getTime();
         Calendar cal1 = Calendar.getInstance();   // this takes current date
         cal1.set(Calendar.DAY_OF_MONTH, 1);
@@ -271,12 +272,14 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.exp_categories) {
             Intent intent = new Intent(this, ExpCatViewActivity.class);
             Log.d(TAG, "Switching to View Expense Categories");
+            intent.putExtra("explist", mExpenseList);
             startActivity(intent);
         } else if (id == R.id.sms_senders) {
             Intent intent = new Intent(this, SmsSendersViewActivity.class);
             Log.d(TAG, "Switching to View SMS Senders");
             ExpCategory expCategory = new ExpCategory("*");
             intent.putExtra("expcat", expCategory);
+            intent.putExtra("explist", mExpenseList);
             startActivity(intent);
         } else if (id == R.id.exp_filters) {
             Intent intent = new Intent(this, ExpenseFilterViewActivty.class);

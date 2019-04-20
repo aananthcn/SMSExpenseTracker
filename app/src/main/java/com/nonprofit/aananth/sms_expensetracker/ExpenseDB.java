@@ -221,7 +221,7 @@ public class ExpenseDB extends SQLiteOpenHelper{
         res.moveToFirst();
 
         if (res.getCount() <= 0) {
-            category = new ExpCategory("Empty", "Invalid");
+            category = new ExpCategory("Others", "Invalid");
             expCatList.add(category);
             res.close();
             db.close();

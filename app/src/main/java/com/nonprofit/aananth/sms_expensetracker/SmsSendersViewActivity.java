@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
@@ -23,6 +24,7 @@ public class SmsSendersViewActivity extends AppCompatActivity {
     private boolean mRcVwInitialized;
     private boolean mRcVwUpdateNeeded;
 
+    private ArrayList<Expense> mExpenseList;
     private List<SmsSender> mSmsSenderList;
     private SmsSender mSmsSender;
 
@@ -34,10 +36,12 @@ public class SmsSendersViewActivity extends AppCompatActivity {
         // get all arguments from the caller
         Intent intent = getIntent();
         mExpCat = (ExpCategory) intent.getSerializableExtra("expcat");
+        mExpenseList = (ArrayList<Expense>) intent.getSerializableExtra("explist");
         setTitle("SMS Senders");
 
         // main code
-        renderSmsSenderRecycleView();
+        mSmsSenderList = getSmsSendersList();
+        renderSmsSenderRecycleView(mSmsSenderList);
         mRcVwInitialized = true;
     }
 
@@ -54,10 +58,27 @@ public class SmsSendersViewActivity extends AppCompatActivity {
 
     private List<SmsSender> getSmsSendersList() {
         ExpenseDB expDb = new ExpenseDB(this);
-        return expDb.GetSenderList();
+        List<SmsSender> senders = expDb.GetSenderList();
+
+        // parse expense list and add money to sender.money
+        for (Expense exp : mExpenseList) {
+            for (SmsSender sender : senders) {
+                try {
+                    if (exp.mSender.name.toLowerCase().contains(sender.name.toLowerCase())) {
+                        sender.money += exp.mMoney;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.d(TAG, e.getMessage());
+                }
+            }
+        }
+
+        return senders;
     }
 
-    public void renderSmsSenderRecycleView() {
+    public void renderSmsSenderRecycleView(final List<SmsSender> list) {
         mRecyclerView = (RecyclerView) findViewById(R.id.exp_cat_recycler_view);
         if (mRecyclerView == null) {
             Log.d(TAG, "renderExpCatRecycleView: mRecylerView is null!!");
@@ -65,8 +86,7 @@ public class SmsSendersViewActivity extends AppCompatActivity {
         }
         mLinearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
-        mSmsSenderList = getSmsSendersList();
-        mSmsSenderRecyclerAdapter = new SmsSenderRecyclerAdapter(mSmsSenderList);
+        mSmsSenderRecyclerAdapter = new SmsSenderRecyclerAdapter(list);
         mRecyclerView.addItemDecoration(new DividerItemDecorator(this, LinearLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(mSmsSenderRecyclerAdapter);
 
@@ -77,11 +97,10 @@ public class SmsSendersViewActivity extends AppCompatActivity {
             @Override
             public void onClick(View view, final int position) {
                 Log.d(TAG, "onClick()");
-                mSmsSender = mSmsSenderList.get(position);
+                mSmsSender = list.get(position);
                 // handle this event
                 Intent intent = new Intent(SmsSendersViewActivity.this, CategorizeSenderActivity.class);
                 intent.putExtra("sender", mSmsSender);
-                //intent.putExtra("expcat", mExpCat);
                 intent.putExtra(EXTRA_MESSAGE, "categorize");
                 startActivity(intent);
                 mRcVwUpdateNeeded = true;
@@ -90,8 +109,14 @@ public class SmsSendersViewActivity extends AppCompatActivity {
             @Override
             public void onLongClick(View view, int position) {
                 Log.d(TAG, "onLongClick()");
-                mSmsSender = mSmsSenderList.get(position);
+                mSmsSender = list.get(position);
                 // handle this event
+                Intent intent = new Intent(SmsSendersViewActivity.this, SmsSenderAddModActivity.class);
+                intent.putExtra("sender", mSmsSender);
+                intent.putExtra("expcat", mExpCat);
+                intent.putExtra(EXTRA_MESSAGE, "modify");
+                startActivity(intent);
+                mRcVwUpdateNeeded = true;
             }
         }));
     }

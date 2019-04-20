@@ -13,13 +13,13 @@ public class SmsSenderRecyclerAdapter extends RecyclerView.Adapter<SmsSenderRecy
 
     // http://www.androidhive.info/2016/01/android-working-with-recycler-view/
     protected static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView smsSender;
-        private TextView expCat;
+        private TextView smsSender, expCat, money;
 
         private ViewHolder(View view) {
             super(view);
             smsSender = (TextView) view.findViewById(R.id.sender_name);
             expCat = (TextView) view.findViewById(R.id.exp_category);
+            money = (TextView) view.findViewById(R.id.sender_money);
         }
     }
 
@@ -54,6 +54,7 @@ public class SmsSenderRecyclerAdapter extends RecyclerView.Adapter<SmsSenderRecy
         SmsSender sender = mSmsSenderList.get(position);
         holder.smsSender.setText(sender.name);
         holder.expCat.setText(sender.expCategory.expCatName);
+        holder.money.setText(Double.toString(sender.money));
     }
 
     // Return the size of your dataset (invoked by the layout manager)
