@@ -30,8 +30,17 @@ public class CategorizeSenderActivity extends AppCompatActivity {
         ArrayList<String> list = new ArrayList<String>();
         final ExpenseDB expDb = new ExpenseDB(this);
         mExpCatList = expDb.GetExpCategoryList();
+
+        // copy names to list and find the position of the current sender list
+        int position = 0, i = 0;
         for (ExpCategory cat : mExpCatList) {
             list.add(cat.expCatName);
+            if (mSmsSender.expCategory != null) {
+                if (cat.expCatName.equals(mSmsSender.expCategory.expCatName)) {
+                    position = i;
+                }
+            }
+            i++;
         }
 
         final Spinner spinner = (Spinner) findViewById(R.id.spinner);
@@ -39,6 +48,7 @@ public class CategorizeSenderActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_item, list);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+        spinner.setSelection(position);
 
         Button clickButton = (Button) findViewById(R.id.select);
         clickButton.setOnClickListener( new View.OnClickListener() {

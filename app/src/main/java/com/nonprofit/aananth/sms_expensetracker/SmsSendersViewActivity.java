@@ -37,6 +37,9 @@ public class SmsSendersViewActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mExpCat = (ExpCategory) intent.getSerializableExtra("expcat");
         mExpenseList = (ArrayList<Expense>) intent.getSerializableExtra("explist");
+        if (mExpenseList == null) {
+            setTitle("Null Hey");
+        }
         setTitle("SMS Senders");
 
         // main code

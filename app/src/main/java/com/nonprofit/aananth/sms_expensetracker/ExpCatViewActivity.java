@@ -80,6 +80,7 @@ public class ExpCatViewActivity extends AppCompatActivity {
                 Intent intent = new Intent(ExpCatViewActivity.this, SmsSendersViewActivity.class);
                 Log.d(TAG, "Switching to View SMS Senders view");
                 intent.putExtra("expcat", mExpCategory);
+                intent.putExtra("explist", mExpenseList);
                 startActivity(intent);
             }
 
