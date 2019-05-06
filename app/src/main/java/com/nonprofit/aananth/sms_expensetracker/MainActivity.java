@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity
             ExpenseFilter ef1 = new ExpenseFilter("(?s).*\\bspent rs.\\b.*", " at ", " on ",
                     "Rs.", " ");
             expDb.AddExpenseFilter(ef1);
-            ExpenseFilter ef2 = new ExpenseFilter("(?s).*\\bdebited with INR\\b.*", "\\s*(and)\\s*",
+            ExpenseFilter ef2 = new ExpenseFilter("(?s).*\\bdebited with INR.*", "\\s*(and)\\s*",
                     "\\s*(credited)\\s*", "INR", " ");
             expDb.AddExpenseFilter(ef2);
             ExpenseFilter ef3 = new ExpenseFilter("(?s).*\\bINR\\b.*\\bdebited\\b.*",
@@ -133,10 +133,29 @@ public class MainActivity extends AppCompatActivity
             ExpenseFilter ef4 = new ExpenseFilter("(?s).*\\bis debited from\\b.*", "\\s*(for)\\s*",
                     "\\s*(via)\\s*", "Rs.", " ");
             expDb.AddExpenseFilter(ef4);
+            ExpenseFilter ef5 = new ExpenseFilter("(?s).*\\busing\\b.*\\bfoodplus card\\b.*", " at ",
+                    " on ", "INR", " ");
+            expDb.AddExpenseFilter(ef5);
+            ExpenseFilter ef6 = new ExpenseFilter("(?s).*\\byou.*ve withdrawn\\b.*", " at ",
+                    " on ", "Rs.", " ");
+            expDb.AddExpenseFilter(ef6);
+            ExpenseFilter ef7 = new ExpenseFilter("(?s).*\\bdebited with rs\\b.*", "Ur ",
+                    " ", "Rs.", " ");
+            expDb.AddExpenseFilter(ef7);
             filterList = expDb.GetExpenseFilterList();
         }
 
         return filterList;
+    }
+
+
+    private Date getDateWithTimeSetToZero(Calendar cal) {
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return cal.getTime();
     }
 
 
@@ -146,10 +165,10 @@ public class MainActivity extends AppCompatActivity
 
         Calendar cal2 = Calendar.getInstance();
         cal2.add(Calendar.MONTH, -DEFAULT_MONTH_SPAN); // last 2 months
-        mSdate = cal2.getTime();
+        mSdate = getDateWithTimeSetToZero(cal2);
         Calendar cal1 = Calendar.getInstance();   // this takes current date
         cal1.set(Calendar.DAY_OF_MONTH, 1);
-        mMdate = cal1.getTime();
+        mMdate = getDateWithTimeSetToZero(cal1);
         mEdate = new Date();
         Double money = 0.0;
         String filter = "date>=" + mSdate.getTime() + " and date<=" + mEdate.getTime();
@@ -178,7 +197,7 @@ public class MainActivity extends AppCompatActivity
             for (ExpenseFilter ef: mExpFilterList) {
                 Log.d(TAG, "filter: " + ef.filter);
                 try {
-                    if (body.toLowerCase().matches(ef.filter)) {
+                    if (body.toLowerCase().matches(ef.filter.toLowerCase())) {
                         money = parseMoneyFromMessage(body, ef);
                         String sender = parseSenderFromMessage(body, ef);
                         SmsSender smsSender = new SmsSender(sender);
@@ -194,9 +213,11 @@ public class MainActivity extends AppCompatActivity
             }
 
             // add to window total
-            if (valid_expense && (smsDate.after(mMdate) || smsDate.equals(mMdate))) {
-                mTotalMoney += money;
-                valid_expense = false; // mark it as accounted!
+            if (valid_expense) {
+                if (smsDate.after(mMdate) || smsDate.equals(mMdate)) {
+                    mTotalMoney += money;
+                    valid_expense = false; // mark it as accounted!
+                }
             }
             Log.d(TAG, "Sender: " + addr);
         } while (cursor.moveToNext());
